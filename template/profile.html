@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{DISPLAYNAME}} | Profile</title>
+    <meta name="description" content="{{DISPLAYNAME}}'s personal profile page.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <div class="logo">{{DISPLAYNAME}}</div>
+        <div class="music-player">
+            <button id="music-btn" class="glass-btn" {{SONG_HIDDEN}}>
+                <span class="icon">▶</span>
+            </button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider" {{SONG_HIDDEN}}>
+        </div>
+    </nav>
+
+    <audio id="bg-music" loop>
+        <source src="{{SONG_URL}}" type="audio/mpeg">
+    </audio>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-visual hidden-delayed">
+                <div class="glass-card main-card">
+                    <div class="card-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-image-container">
+                            <img src="{{PHOTO_URL}}" alt="{{DISPLAYNAME}} Profile" class="profile-image" draggable="false">
+                        </div>
+                        <div class="hologram-circle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-links">
+                <a href="{{INSTAGRAM}}" target="_blank" class="social-btn" style="{{INSTAGRAM_VISIBLE}}">Instagram</a>
+                <a href="{{DISCORD}}" target="_blank" class="social-btn" style="{{DISCORD_VISIBLE}}">Discord</a>
+                <a href="{{YOUTUBE}}" target="_blank" class="social-btn" style="{{YOUTUBE_VISIBLE}}">YouTube</a>
+            </div>
+        </section>
+
+        <div class="equalizer eq-left">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+        <div class="equalizer eq-right">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </main>
+
+    <a href="/create" class="create-yours-btn">✨ Create Your Profile</a>
+
+    <script src="/public/script.js"></script>
+</body>
+</html>

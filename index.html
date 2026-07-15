@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Experience | Next Gen Design</title>
+    <meta name="description" content="A clean, premium animated web experience.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <div class="logo">Tanu</div>
+
+        <div class="music-player">
+            <button id="music-btn" class="glass-btn">
+                <span class="icon">▶</span>
+            </button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider">
+        </div>
+    </nav>
+
+    <audio id="bg-music" loop>
+        <source src="1.mp3" type="audio/mpeg">
+    </audio>
+
+    <main>
+        <section id="home" class="hero">
+
+            <div class="hero-visual hidden-delayed">
+                <div class="glass-card main-card">
+                    <div class="card-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-image-container">
+                            <img src="tanu.png" alt="Tanu Profile" class="profile-image" draggable="false">
+                        </div>
+                        <div class="hologram-circle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.instagram.com/miss.tanu9043/" target="_blank" class="social-btn">Instagram</a>
+                <a href="https://discord.gg/N5kymdfyFD" target="_blank" class="social-btn">Discord</a>
+                <a href="https://youtube.com/@xon_tanu_live?si=zONEW2qJi1ECeC7U" target="_blank"
+                    class="social-btn">YouTube</a>
+            </div>
+        </section>
+
+
+        <div class="equalizer eq-left">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+
+        <div class="equalizer eq-right">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
