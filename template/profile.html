@@ -43,6 +43,10 @@
                         <div class="profile-image-container">
                             <img src="{{PHOTO_URL}}" alt="{{DISPLAYNAME}} Profile" class="profile-image" draggable="false">
                         </div>
+                        <div class="profile-name-box">
+                            <h2 class="profile-display-name">{{DISPLAYNAME}}</h2>
+                            <p class="profile-username">@{{USERNAME}}</p>
+                        </div>
                         <div class="hologram-circle"></div>
                     </div>
                 </div>
@@ -72,7 +76,8 @@
         </div>
     </main>
 
-    <a href="/create" class="create-yours-btn">✨ Create Your Profile</a>
+    {{EDIT_BUTTON}}
+    {{CREATE_BUTTON}}
 
     <script src="/public/script.js"></script>
 </body>

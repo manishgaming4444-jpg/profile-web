@@ -266,7 +266,7 @@
 
     <div class="page-wrapper">
         <div class="brand">
-            <h1>Create Profile</h1>
+            <img src="/public/logo.png" alt="XonPro" style="height:55px; margin-bottom:0.8rem;">
             <p>Get your own premium profile page instantly</p>
         </div>
 
@@ -373,6 +373,32 @@
             btn.textContent = 'Creating...';
             btn.disabled = true;
         });
+
+        // Show error if username taken
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'taken') {
+            const taken = params.get('username') || '';
+            const errEl = document.getElementById('error-msg');
+            errEl.innerHTML = `
+                <div style="display:flex;align-items:center;gap:0.7rem;">
+                    <span style="font-size:1.3rem;">⚠️</span>
+                    <div>
+                        <div style="font-weight:700;font-size:0.95rem;color:#fff;">Username already taken!</div>
+                        <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-top:0.2rem;">
+                            <b style="color:#ff6b6b;">@${taken}</b> pehle se kisi aur ne le liya hai. Koi aur naam try karo.
+                        </div>
+                    </div>
+                </div>
+            `;
+            errEl.style.display = 'block';
+            // Pre-fill the username field
+            if (taken) {
+                const usernameInput = document.getElementById('username');
+                usernameInput.value = taken;
+                usernameInput.focus();
+                usernameInput.select();
+            }
+        }
     </script>
 </body>
 </html>
