@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('show');
-                observer.unobserve(entry.target); // Stop observing once revealed
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
@@ -25,46 +25,49 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mousemove', (e) => {
         const x = e.clientX;
         const y = e.clientY;
-        
-        // Gentle parallax effect for background blobs
-        if(blob1) {
-            blob1.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px)`;
-        }
-        if(blob2) {
-            blob2.style.transform = `translate(${x * -0.02}px, ${y * -0.02}px)`;
-        }
+        if(blob1) blob1.style.transform = `translate(${x * 0.02}px, ${y * 0.02}px)`;
+        if(blob2) blob2.style.transform = `translate(${x * -0.02}px, ${y * -0.02}px)`;
     });
 
-    // Button click effects
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            let x = e.clientX - e.target.offsetLeft;
-            let y = e.clientY - e.target.offsetTop;
-            
-            let ripples = document.createElement('span');
-            ripples.style.left = x + 'px';
-            ripples.style.top = y + 'px';
-            ripples.style.position = 'absolute';
-            ripples.style.background = 'rgba(255,255,255,0.3)';
-            ripples.style.width = '10px';
-            ripples.style.height = '10px';
-            ripples.style.borderRadius = '50%';
-            ripples.style.transform = 'translate(-50%, -50%)';
-            ripples.style.animation = 'ripple 0.5s linear infinite';
-            
-            // Note: button needs position:relative and overflow:hidden for ripple
-            // We'll just add a simple scale effect in CSS, but this is a nice JS addition if styled.
-        });
-    });
-    // Music Player Logic
+    // ─── MUSIC PLAYER LOGIC ───────────────────────────────────────
     const bgMusic = document.getElementById('bg-music');
     const musicBtn = document.getElementById('music-btn');
     const musicIcon = musicBtn ? musicBtn.querySelector('.icon') : null;
     const volumeSlider = document.getElementById('volume-slider');
 
+    // Create "Tap to Play" toast
+    function createMusicToast() {
+        if (document.getElementById('music-toast')) return;
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes musicToastIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+            @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(138,43,226,0.7)} 70%{box-shadow:0 0 0 14px rgba(138,43,226,0)} 100%{box-shadow:0 0 0 0 rgba(138,43,226,0)} }
+        `;
+        document.head.appendChild(style);
+
+        const toast = document.createElement('div');
+        toast.id = 'music-toast';
+        toast.innerHTML = '🎵 Tap anywhere to play music';
+        toast.style.cssText = `
+            position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+            background:rgba(10,10,20,0.92); backdrop-filter:blur(14px);
+            color:#fff; padding:12px 28px; border-radius:50px;
+            font-family:'Outfit',sans-serif; font-size:0.88rem; font-weight:600;
+            border:1px solid rgba(138,43,226,0.4); z-index:9999;
+            animation:musicToastIn 0.4s ease;
+            box-shadow:0 8px 32px rgba(138,43,226,0.35);
+            cursor:pointer; user-select:none; letter-spacing:0.3px;
+        `;
+        document.body.appendChild(toast);
+        return toast;
+    }
+
+    function removeMusicToast() {
+        const t = document.getElementById('music-toast');
+        if (t) t.remove();
+    }
+
     if (musicBtn && bgMusic) {
-        // Set initial volume based on slider
         if (volumeSlider) {
             bgMusic.volume = volumeSlider.value;
             volumeSlider.addEventListener('input', (e) => {
@@ -72,37 +75,48 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Auto-play if enabled (on first interaction to bypass browser policy)
-        if (window.MUSIC_AUTO_PLAY === true) {
-            const tryAutoPlay = () => {
-                bgMusic.play().then(() => {
-                    if (musicIcon) musicIcon.textContent = '⏸';
-                    document.body.classList.add('music-active');
-                    document.removeEventListener('click', tryAutoPlay);
-                    document.removeEventListener('touchstart', tryAutoPlay);
-                }).catch(() => {});
-            };
-            // Try immediately, fallback to first click
+        function startMusic() {
             bgMusic.play().then(() => {
-                if (musicIcon) musicIcon.textContent = '⏸';
+                if (musicIcon) musicIcon.textContent = '\u23f8';
+                document.body.classList.add('music-active');
+                removeMusicToast();
+                if (musicBtn) musicBtn.style.animation = '';
+            }).catch(() => {});
+        }
+
+        // Auto-play if enabled by owner
+        if (window.MUSIC_AUTO_PLAY === true) {
+            bgMusic.play().then(() => {
+                if (musicIcon) musicIcon.textContent = '\u23f8';
                 document.body.classList.add('music-active');
             }).catch(() => {
-                document.addEventListener('click', tryAutoPlay, { once: true });
-                document.addEventListener('touchstart', tryAutoPlay, { once: true });
+                // Browser blocked autoplay — show toast & pulse button
+                createMusicToast();
+                if (musicBtn) musicBtn.style.animation = 'pulse 1.5s infinite';
+
+                const onInteract = () => {
+                    startMusic();
+                    document.removeEventListener('click', onInteract);
+                    document.removeEventListener('touchstart', onInteract);
+                };
+                document.addEventListener('click', onInteract);
+                document.addEventListener('touchstart', onInteract);
             });
         }
 
-        musicBtn.addEventListener('click', () => {
+        // Manual play/pause toggle
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (bgMusic.paused) {
                 bgMusic.play();
-                if (musicIcon) musicIcon.textContent = '⏸';
+                if (musicIcon) musicIcon.textContent = '\u23f8';
                 document.body.classList.add('music-active');
+                removeMusicToast();
             } else {
                 bgMusic.pause();
-                if (musicIcon) musicIcon.textContent = '▶';
+                if (musicIcon) musicIcon.textContent = '\u25b6';
                 document.body.classList.remove('music-active');
             }
         });
     }
 });
-
