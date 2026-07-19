@@ -67,23 +67,42 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set initial volume based on slider
         if (volumeSlider) {
             bgMusic.volume = volumeSlider.value;
-            
-            // Listen for volume slider changes
             volumeSlider.addEventListener('input', (e) => {
                 bgMusic.volume = e.target.value;
+            });
+        }
+
+        // Auto-play if enabled (on first interaction to bypass browser policy)
+        if (window.MUSIC_AUTO_PLAY === true) {
+            const tryAutoPlay = () => {
+                bgMusic.play().then(() => {
+                    if (musicIcon) musicIcon.textContent = '⏸';
+                    document.body.classList.add('music-active');
+                    document.removeEventListener('click', tryAutoPlay);
+                    document.removeEventListener('touchstart', tryAutoPlay);
+                }).catch(() => {});
+            };
+            // Try immediately, fallback to first click
+            bgMusic.play().then(() => {
+                if (musicIcon) musicIcon.textContent = '⏸';
+                document.body.classList.add('music-active');
+            }).catch(() => {
+                document.addEventListener('click', tryAutoPlay, { once: true });
+                document.addEventListener('touchstart', tryAutoPlay, { once: true });
             });
         }
 
         musicBtn.addEventListener('click', () => {
             if (bgMusic.paused) {
                 bgMusic.play();
-                musicIcon.textContent = '⏸'; // Pause icon
+                if (musicIcon) musicIcon.textContent = '⏸';
                 document.body.classList.add('music-active');
             } else {
                 bgMusic.pause();
-                musicIcon.textContent = '▶'; // Play icon
+                if (musicIcon) musicIcon.textContent = '▶';
                 document.body.classList.remove('music-active');
             }
         });
     }
 });
+

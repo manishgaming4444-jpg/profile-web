@@ -34,18 +34,14 @@
         <section id="home" class="hero">
             <div class="hero-visual hidden-delayed">
                 <div class="glass-card main-card">
-                    <div class="card-header">
-                        <span class="dot red"></span>
-                        <span class="dot yellow"></span>
-                        <span class="dot green"></span>
-                    </div>
+
                     <div class="card-body">
                         <div class="profile-image-container">
                             <img src="{{PHOTO_URL}}" alt="{{DISPLAYNAME}} Profile" class="profile-image" draggable="false">
                         </div>
                         <div class="profile-name-box">
                             <h2 class="profile-display-name">{{DISPLAYNAME}}</h2>
-                            <p class="profile-username">@{{USERNAME}}</p>
+
                         </div>
                         <div class="hologram-circle"></div>
                     </div>
@@ -79,6 +75,7 @@
     {{EDIT_BUTTON}}
     {{CREATE_BUTTON}}
 
+    <script>window.MUSIC_AUTO_PLAY = {{MUSIC_AUTO_PLAY}};</script>
     <script src="/public/script.js"></script>
 </body>
 </html>

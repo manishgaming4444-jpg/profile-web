@@ -104,8 +104,9 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
     const usernameLink = existing ? existing.username : '';
 
     let dashboardContent = '';
-    let editDisplayname = '', editInstagram = '', editDiscord = '', editYoutube = '';
+    let editDisplayname = '', editInstagram = '', editDiscord = '', editYoutube = '', editMusicEnabled = '';
     let currentPhotoPreview = '', currentSongPreview = '';
+
 
     if (existing) {
         const photoUrl = existing.photo ? `/uploads/${existing.username}/${existing.photo}` : null;
@@ -114,10 +115,12 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
             ? new Date(existing.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' })
             : 'N/A';
 
-        editDisplayname = existing.displayname || '';
-        editInstagram   = existing.instagram   || '';
-        editDiscord     = existing.discord     || '';
-        editYoutube     = existing.youtube     || '';
+        editDisplayname  = existing.displayname || '';
+        editInstagram    = existing.instagram   || '';
+        editDiscord      = existing.discord     || '';
+        editYoutube      = existing.youtube     || '';
+        editMusicEnabled = existing.musicEnabled ? 'checked' : '';
+
 
         currentPhotoPreview = photoUrl
             ? `<div class="current-media"><img src="${photoUrl}" alt="Current photo"> <span>Current photo</span></div>`
@@ -187,8 +190,10 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
         .replace(/\{\{EDIT_INSTAGRAM\}\}/g, editInstagram)
         .replace(/\{\{EDIT_DISCORD\}\}/g, editDiscord)
         .replace(/\{\{EDIT_YOUTUBE\}\}/g, editYoutube)
+        .replace(/\{\{EDIT_MUSIC_ENABLED\}\}/g, editMusicEnabled)
         .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g, currentPhotoPreview)
         .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g, currentSongPreview);
+
 
     res.send(html);
 });
@@ -271,11 +276,13 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
     const user = JSON.parse(fs.readFileSync(userFile, 'utf-8'));
     if (user.googleId !== req.user.googleId) return res.status(403).send('Access denied.');
 
-    const { displayname, instagram, discord, youtube } = req.body;
-    user.displayname = displayname || user.displayname;
-    user.instagram = instagram || user.instagram;
-    user.discord = discord || user.discord;
-    user.youtube = youtube || user.youtube;
+    const { displayname, instagram, discord, youtube, musicEnabled } = req.body;
+    user.displayname   = displayname || user.displayname;
+    user.instagram     = instagram || user.instagram;
+    user.discord       = discord || user.discord;
+    user.youtube       = youtube || user.youtube;
+    user.musicEnabled  = musicEnabled === 'on';
+
 
     if (req.files['photo']) {
         user.photo = `photo${path.extname(req.files['photo'][0].originalname)}`;
@@ -315,6 +322,8 @@ app.get('/:username', (req, res) => {
     const photoUrl = user.photo ? `/uploads/${user.username}/${user.photo}` : '/public/default-avatar.png';
     const songUrl = user.song ? `/uploads/${user.username}/${user.song}` : '';
     const songHidden = songUrl ? '' : 'style="display:none"';
+    const musicAutoPlay = (user.musicEnabled && songUrl) ? 'true' : 'false';
+
 
     // Is the logged-in user the owner?
     const isOwner = req.isAuthenticated() && req.user.googleId === user.googleId;
@@ -341,7 +350,8 @@ app.get('/:username', (req, res) => {
         .replace(/\{\{DISCORD_VISIBLE\}\}/g, user.discord ? '' : 'display:none')
         .replace(/\{\{YOUTUBE_VISIBLE\}\}/g, user.youtube ? '' : 'display:none')
         .replace(/\{\{EDIT_BUTTON\}\}/g, editBtn)
-        .replace(/\{\{CREATE_BUTTON\}\}/g, createBtn);
+        .replace(/\{\{CREATE_BUTTON\}\}/g, createBtn)
+        .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g, musicAutoPlay);
 
     res.send(template);
 });

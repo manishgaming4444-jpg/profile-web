@@ -118,6 +118,18 @@
         .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:#22c55e; color:#000; font-weight:700; padding:0.8rem 1.8rem; border-radius:50px; font-size:0.88rem; box-shadow:0 8px 25px rgba(34,197,94,0.4); display:none; z-index:999; animation:slideUp 0.3s ease; }
         @keyframes slideUp { from { transform:translateX(-50%) translateY(20px); opacity:0; } to { transform:translateX(-50%) translateY(0); opacity:1; } }
 
+        /* Music Toggle */
+        .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-top:1rem; }
+        .toggle-label { font-size:0.88rem; color:rgba(255,255,255,0.6); }
+        .toggle-label span { display:block; font-size:0.72rem; color:rgba(255,255,255,0.25); margin-top:2px; }
+        .switch { position:relative; width:46px; height:26px; flex-shrink:0; }
+        .switch input { opacity:0; width:0; height:0; }
+        .slider { position:absolute; cursor:pointer; inset:0; background:rgba(255,255,255,0.1); border-radius:26px; transition:.3s; }
+        .slider:before { content:''; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+        input:checked + .slider { background:linear-gradient(135deg,#00c8ff,#8a2be2); }
+        input:checked + .slider:before { transform:translateX(20px); }
+
+
         /* No Profile */
         .no-profile-card { grid-column:span 3; text-align:center; padding:5rem 2rem; }
         .no-profile-card .big-emoji { font-size:3.5rem; margin-bottom:1rem; }
@@ -258,6 +270,18 @@
                                     </div>
                                 </div>
                                 <div class="file-name-show" id="song-name"></div>
+
+                                <!-- Music Auto-Play Toggle -->
+                                <div class="toggle-row">
+                                    <div class="toggle-label">
+                                        🎵 Auto-Play Music
+                                        <span>Profile open hote hi song chalega</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" name="musicEnabled" id="musicToggle" {{EDIT_MUSIC_ENABLED}}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
                             </div>
 
                         </div>
