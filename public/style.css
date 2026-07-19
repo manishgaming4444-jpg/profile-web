@@ -698,3 +698,72 @@ body.music-active .equalizer .bar:nth-child(5) { animation-duration: 0.7s; anima
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(255,255,255,0.35);
 }
+
+/* ─── CREATE BANNER ─────────────────────────────── */
+.create-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 0.7rem 2rem;
+    background: linear-gradient(90deg, rgba(138,43,226,0.95), rgba(0,200,255,0.85));
+    backdrop-filter: blur(10px);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #fff;
+    font-weight: 500;
+    animation: bannerSlideIn 0.5s ease;
+}
+@keyframes bannerSlideIn {
+    from { transform: translateY(-100%); }
+    to   { transform: translateY(0); }
+}
+.create-banner a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1.1rem;
+    background: #fff;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.82rem;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.25s;
+    white-space: nowrap;
+}
+.create-banner a:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+/* Push body down when banner is visible */
+body.has-banner { padding-top: 44px; }
+
+/* ─── VIEWS BADGE ────────────────────────────────── */
+.views-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* ─── PROFILE BIO ────────────────────────────────── */
+.profile-bio {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 0.4rem;
+    line-height: 1.5;
+    max-width: 260px;
+    text-align: center;
+    font-style: italic;
+    word-break: break-word;
+}
+

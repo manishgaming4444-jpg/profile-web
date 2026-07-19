@@ -219,6 +219,10 @@
                             <input class="form-input" type="text" name="displayname" value="{{EDIT_DISPLAYNAME}}" placeholder="Apna naam" required>
                         </div>
                         <div class="form-group">
+                            <label>Bio <span style="opacity:0.4;font-size:0.75rem">(optional · max 150)</span></label>
+                            <textarea class="form-input" name="bio" rows="3" placeholder="Apne baare mein kuch likho..." maxlength="150" style="resize:vertical;">{{EDIT_BIO}}</textarea>
+                        </div>
+                        <div class="form-group">
                             <label>Username (change nahi hoga)</label>
                             <input class="form-input" type="text" value="@{{USERNAME_LINK}}" disabled style="opacity:0.4;cursor:not-allowed;">
                         </div>

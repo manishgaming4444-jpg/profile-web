@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="/public/style.css">
 </head>
 <body>
+
+    {{CREATE_BANNER}}
+
     <div class="background-elements">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -34,14 +37,14 @@
         <section id="home" class="hero">
             <div class="hero-visual hidden-delayed">
                 <div class="glass-card main-card">
-
                     <div class="card-body">
                         <div class="profile-image-container">
                             <img src="{{PHOTO_URL}}" alt="{{DISPLAYNAME}} Profile" class="profile-image" draggable="false">
                         </div>
                         <div class="profile-name-box">
                             <h2 class="profile-display-name">{{DISPLAYNAME}}</h2>
-
+                            {{PROFILE_BIO}}
+                            <div class="views-badge">👁️ {{VIEWS}} views</div>
                         </div>
                         <div class="hologram-circle"></div>
                     </div>
@@ -73,7 +76,6 @@
     </main>
 
     {{EDIT_BUTTON}}
-    {{CREATE_BUTTON}}
 
     <script>window.MUSIC_AUTO_PLAY = {{MUSIC_AUTO_PLAY}};</script>
     <script src="/public/script.js"></script>

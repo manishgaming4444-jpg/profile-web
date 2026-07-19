@@ -104,8 +104,9 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
     const usernameLink = existing ? existing.username : '';
 
     let dashboardContent = '';
-    let editDisplayname = '', editInstagram = '', editDiscord = '', editYoutube = '', editMusicEnabled = '';
+    let editDisplayname = '', editBio = '', editInstagram = '', editDiscord = '', editYoutube = '', editMusicEnabled = '';
     let currentPhotoPreview = '', currentSongPreview = '';
+
 
 
     if (existing) {
@@ -116,10 +117,12 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
             : 'N/A';
 
         editDisplayname  = existing.displayname || '';
-        editInstagram    = existing.instagram   || '';
-        editDiscord      = existing.discord     || '';
-        editYoutube      = existing.youtube     || '';
+        editBio          = existing.bio          || '';
+        editInstagram    = existing.instagram    || '';
+        editDiscord      = existing.discord      || '';
+        editYoutube      = existing.youtube      || '';
         editMusicEnabled = existing.musicEnabled ? 'checked' : '';
+
 
 
         currentPhotoPreview = photoUrl
@@ -187,12 +190,14 @@ app.get('/dashboard', isLoggedIn, (req, res) => {
         .replace(/\{\{USERNAME_LINK\}\}/g, usernameLink)
         .replace(/\{\{DASHBOARD_CONTENT\}\}/g, dashboardContent)
         .replace(/\{\{EDIT_DISPLAYNAME\}\}/g, editDisplayname)
+        .replace(/\{\{EDIT_BIO\}\}/g, editBio)
         .replace(/\{\{EDIT_INSTAGRAM\}\}/g, editInstagram)
         .replace(/\{\{EDIT_DISCORD\}\}/g, editDiscord)
         .replace(/\{\{EDIT_YOUTUBE\}\}/g, editYoutube)
         .replace(/\{\{EDIT_MUSIC_ENABLED\}\}/g, editMusicEnabled)
         .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g, currentPhotoPreview)
         .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g, currentSongPreview);
+
 
 
     res.send(html);
@@ -220,7 +225,7 @@ app.post('/create', isLoggedIn, upload.fields([
         const existing = findUserByGoogleId(req.user.googleId);
         if (existing) return res.redirect(`/${existing.username}`);
 
-        const { username, displayname, instagram, discord, youtube } = req.body;
+        const { username, displayname, bio, instagram, discord, youtube } = req.body;
 
         if (!username || !/^[a-z0-9_]{2,20}$/.test(username)) {
             return res.status(400).send('Invalid username.');
@@ -235,6 +240,7 @@ app.post('/create', isLoggedIn, upload.fields([
         const userData = {
             username,
             displayname: displayname || username,
+            bio: bio || '',
             googleId: req.user.googleId,
             googleEmail: req.user.email,
             instagram: instagram || '',
@@ -242,6 +248,7 @@ app.post('/create', isLoggedIn, upload.fields([
             youtube: youtube || '',
             photo: req.files['photo'] ? `photo${path.extname(req.files['photo'][0].originalname)}` : '',
             song: req.files['song'] ? `song${path.extname(req.files['song'][0].originalname)}` : '',
+            views: 0,
             createdAt: new Date().toISOString()
         };
 
@@ -276,12 +283,14 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
     const user = JSON.parse(fs.readFileSync(userFile, 'utf-8'));
     if (user.googleId !== req.user.googleId) return res.status(403).send('Access denied.');
 
-    const { displayname, instagram, discord, youtube, musicEnabled } = req.body;
+    const { displayname, bio, instagram, discord, youtube, musicEnabled } = req.body;
     user.displayname   = displayname || user.displayname;
+    user.bio           = bio !== undefined ? bio : (user.bio || '');
     user.instagram     = instagram || user.instagram;
     user.discord       = discord || user.discord;
     user.youtube       = youtube || user.youtube;
     user.musicEnabled  = musicEnabled === 'on';
+
 
 
     if (req.files['photo']) {
@@ -317,24 +326,39 @@ app.get('/:username', (req, res) => {
     }
 
     const user = JSON.parse(fs.readFileSync(userFile, 'utf-8'));
+
+    // ── Increment view counter ──────────────────────────────────
+    user.views = (user.views || 0) + 1;
+    fs.writeFileSync(userFile, JSON.stringify(user, null, 2));
+
     let template = fs.readFileSync(path.join(__dirname, 'template', 'profile.html'), 'utf-8');
 
     const photoUrl = user.photo ? `/uploads/${user.username}/${user.photo}` : '/public/default-avatar.png';
-    const songUrl = user.song ? `/uploads/${user.username}/${user.song}` : '';
-    const songHidden = songUrl ? '' : 'style="display:none"';
+    const songUrl  = user.song  ? `/uploads/${user.username}/${user.song}`  : '';
+    const songHidden    = songUrl ? '' : 'style="display:none"';
     const musicAutoPlay = (user.musicEnabled && songUrl) ? 'true' : 'false';
 
+    // ── Format views nicely ────────────────────────────────────
+    const viewsCount = (user.views || 0).toLocaleString('en-IN');
 
-    // Is the logged-in user the owner?
+    // ── Bio HTML ───────────────────────────────────────────────
+    const bioHtml = user.bio
+        ? `<p class="profile-bio">${user.bio.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
+        : '';
+
+    // ── Is the logged-in user the owner? ──────────────────────
     const isOwner = req.isAuthenticated() && req.user.googleId === user.googleId;
-    // Edit button — goes to dashboard edit tab
     const editBtn = isOwner
         ? `<a href="/dashboard#edit" class="edit-profile-btn">✏️ Edit Profile</a>`
         : '';
-    // "Create Your Profile" — only for visitors who are NOT logged in or have no profile
+
+    // ── Create banner for non-users ────────────────────────────
     const visitorHasProfile = req.isAuthenticated() && findUserByGoogleId(req.user.googleId);
-    const createBtn = (!isOwner && !visitorHasProfile)
-        ? `<a href="/create" class="create-yours-btn">✨ Create Your Profile</a>`
+    const createBanner = (!isOwner && !visitorHasProfile)
+        ? `<div class="create-banner" id="create-banner">
+                <span>✨ <strong>${user.displayname}</strong> ka profile dekh rahe ho? Apna bhi banao!</span>
+                <a href="/create">Free mein banao →</a>
+           </div>`
         : '';
 
     template = template
@@ -350,8 +374,11 @@ app.get('/:username', (req, res) => {
         .replace(/\{\{DISCORD_VISIBLE\}\}/g, user.discord ? '' : 'display:none')
         .replace(/\{\{YOUTUBE_VISIBLE\}\}/g, user.youtube ? '' : 'display:none')
         .replace(/\{\{EDIT_BUTTON\}\}/g, editBtn)
-        .replace(/\{\{CREATE_BUTTON\}\}/g, createBtn)
+        .replace(/\{\{CREATE_BANNER\}\}/g, createBanner)
+        .replace(/\{\{PROFILE_BIO\}\}/g, bioHtml)
+        .replace(/\{\{VIEWS\}\}/g, viewsCount)
         .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g, musicAutoPlay);
+
 
     res.send(template);
 });
