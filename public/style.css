@@ -785,20 +785,39 @@ body.has-banner { padding-top: 44px; }
     flex-shrink: 0;
     text-decoration: none;
     position: relative;
+    /* Always-on glow */
+    box-shadow:
+        0 0 8px  var(--glow, #888),
+        0 0 18px color-mix(in srgb, var(--glow, #888) 40%, transparent);
+    animation: iconPulse 2.5s ease-in-out infinite;
+}
+@keyframes iconPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 8px  var(--glow, #888),
+            0 0 18px color-mix(in srgb, var(--glow, #888) 40%, transparent);
+    }
+    50% {
+        box-shadow:
+            0 0 14px var(--glow, #888),
+            0 0 32px color-mix(in srgb, var(--glow, #888) 55%, transparent);
+    }
 }
 .plink:hover {
     transform: translateY(-5px) scale(1.18);
     box-shadow:
-        0 0 14px var(--glow, #888),
-        0 0 30px color-mix(in srgb, var(--glow, #888) 50%, transparent),
-        0 8px 20px rgba(0,0,0,0.5);
-    filter: brightness(1.15);
+        0 0 18px var(--glow, #888),
+        0 0 40px color-mix(in srgb, var(--glow, #888) 70%, transparent),
+        0 8px 20px rgba(0,0,0,0.5) !important;
+    filter: brightness(1.2);
     z-index: 2;
+    animation: none;
 }
 .plink:active {
     transform: translateY(-2px) scale(1.05);
 }
 .plink img { display: block; pointer-events: none; }
+
 
 /* Old text social links — compact inline */
 .social-links-inline {
