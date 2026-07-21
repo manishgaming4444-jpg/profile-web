@@ -380,6 +380,9 @@ app.get('/:username', async (req, res) => {
             ? `<style>*{cursor:url('${user.customCursor}') 16 16,auto!important;}</style>`
             : '';
 
+        // Body class for background media
+        const bodyClass = user.bgMedia ? 'has-bg-media' : '';
+
         template = template
             .replace(/\{\{USERNAME\}\}/g,           user.username)
             .replace(/\{\{DISPLAYNAME\}\}/g,        user.displayname)
@@ -398,7 +401,8 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{VIEWS\}\}/g,              viewsCount)
             .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g,    musicAutoPlay)
             .replace(/\{\{BG_MEDIA_ELEMENT\}\}/g,   bgMediaElement)
-            .replace(/\{\{CUSTOM_CURSOR_STYLE\}\}/g, cursorStyle);
+            .replace(/\{\{CUSTOM_CURSOR_STYLE\}\}/g, cursorStyle)
+            .replace(/\{\{BODY_CLASS\}\}/g,         bodyClass);
 
 
         res.send(template);

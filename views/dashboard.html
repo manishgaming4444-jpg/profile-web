@@ -18,8 +18,6 @@
             position:sticky; top:0; z-index:100;
         }
         .brand { font-size:1.25rem; font-weight:800; letter-spacing:-0.5px; display:flex; align-items:center; gap:0.5rem; }
-        .brand .xon { color:#fff; }
-        .brand .pro { background:linear-gradient(135deg,#00c8ff,#8a2be2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .brand-badge { font-size:0.55rem; font-weight:700; padding:0.15rem 0.45rem; background:rgba(0,200,255,0.1); border:1px solid rgba(0,200,255,0.2); border-radius:20px; color:#00c8ff; letter-spacing:1px; text-transform:uppercase; }
         .topbar-right { display:flex; align-items:center; gap:0.8rem; }
         .user-pill { display:flex; align-items:center; gap:0.5rem; padding:0.35rem 0.9rem 0.35rem 0.35rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:50px; font-size:0.8rem; color:rgba(255,255,255,0.55); }
@@ -94,21 +92,12 @@
         .form-input:focus { border-color:rgba(138,43,226,0.5); background:rgba(255,255,255,0.06); box-shadow:0 0 0 3px rgba(138,43,226,0.1); }
         .form-input::placeholder { color:rgba(255,255,255,0.18); }
 
-        /* File Upload */
-        .file-area { position:relative; }
-        .file-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
-        .file-label-box { display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.1); border-radius:10px; cursor:pointer; transition:all 0.25s; }
-        .file-label-box:hover { border-color:rgba(138,43,226,0.4); background:rgba(138,43,226,0.05); }
-        .file-icon { font-size:1.3rem; }
-        .file-desc { font-size:0.82rem; color:rgba(255,255,255,0.35); }
-        .file-name-show { font-size:0.75rem; color:#8a2be2; margin-top:0.3rem; display:none; }
-
         /* Current media preview */
-        .current-media { display:flex; align-items:center; gap:0.8rem; padding:0.7rem 1rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05); border-radius:10px; margin-bottom:0.8rem; font-size:0.8rem; color:rgba(255,255,255,0.4); }
-        .current-media img { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.1); }
+        .current-media { display:flex; align-items:center; gap:0.8rem; padding:0.5rem 0.8rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-top:0.5rem; font-size:0.78rem; color:rgba(255,255,255,0.4); }
+        .current-media img { width:30px; height:30px; border-radius:50%; object-fit:cover; }
 
         /* Save Button */
-        .save-row { display:flex; gap:1rem; margin-top:1.5rem; justify-content:flex-end; }
+        .save-row { display:flex; gap:1rem; margin-top:1.8rem; justify-content:flex-end; }
         .btn-save { padding:0.75rem 2rem; background:#fff; color:#000; font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:700; border:none; border-radius:50px; cursor:pointer; transition:all 0.25s; }
         .btn-save:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(255,255,255,0.2); }
         .btn-cancel-edit { padding:0.75rem 1.5rem; background:transparent; color:rgba(255,255,255,0.4); font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:600; border:1px solid rgba(255,255,255,0.1); border-radius:50px; cursor:pointer; transition:all 0.25s; }
@@ -119,9 +108,9 @@
         @keyframes slideUp { from { transform:translateX(-50%) translateY(20px); opacity:0; } to { transform:translateX(-50%) translateY(0); opacity:1; } }
 
         /* Music Toggle */
-        .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-top:1rem; }
-        .toggle-label { font-size:0.88rem; color:rgba(255,255,255,0.6); }
-        .toggle-label span { display:block; font-size:0.72rem; color:rgba(255,255,255,0.25); margin-top:2px; }
+        .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:0.8rem 1rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; margin-top:0.8rem; }
+        .toggle-label { font-size:0.82rem; color:rgba(255,255,255,0.6); }
+        .toggle-label span { display:block; font-size:0.7rem; color:rgba(255,255,255,0.25); margin-top:2px; }
         .switch { position:relative; width:46px; height:26px; flex-shrink:0; }
         .switch input { opacity:0; width:0; height:0; }
         .slider { position:absolute; cursor:pointer; inset:0; background:rgba(255,255,255,0.1); border-radius:26px; transition:.3s; }
@@ -129,14 +118,41 @@
         input:checked + .slider { background:linear-gradient(135deg,#00c8ff,#8a2be2); }
         input:checked + .slider:before { transform:translateX(20px); }
 
-
         /* No Profile */
         .no-profile-card { grid-column:span 3; text-align:center; padding:5rem 2rem; }
         .no-profile-card .big-emoji { font-size:3.5rem; margin-bottom:1rem; }
         .no-profile-card h2 { font-size:1.4rem; font-weight:700; margin-bottom:0.5rem; }
         .no-profile-card p { color:rgba(255,255,255,0.3); font-size:0.9rem; margin-bottom:2rem; }
 
+        /* ─── ASSETS UPLOADER ───────────────────────── */
+        .assets-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:0.8rem; }
+        .asset-box { display:flex; flex-direction:column; gap:0.4rem; }
+        .asset-label { font-size:0.78rem; font-weight:600; color:rgba(255,255,255,0.5); letter-spacing:0.3px; margin-bottom:0.3rem; }
+        .asset-upload-area {
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:0.5rem; padding:1.8rem 1rem; min-height:130px;
+            background:rgba(255,255,255,0.02);
+            border:1px dashed rgba(255,255,255,0.1);
+            border-radius:14px; cursor:pointer;
+            transition:all 0.25s ease;
+            user-select:none;
+        }
+        .asset-upload-area:hover {
+            border-color:rgba(138,43,226,0.5);
+            background:rgba(138,43,226,0.05);
+            transform:translateY(-2px);
+        }
+        .asset-upload-area:active { transform:translateY(0); }
+        .asset-icon { font-size:2rem; line-height:1; }
+        .asset-hint { font-size:0.73rem; color:rgba(255,255,255,0.35); text-align:center; }
+        .asset-sub { font-size:0.63rem; color:rgba(255,255,255,0.18); text-align:center; margin-top:0.1rem; }
+        .file-name-show { font-size:0.73rem; color:#8a2be2; display:none; margin-top:0.3rem; word-break:break-all; }
+        .file-name-show.visible { display:block; }
+
         /* ─── RESPONSIVE ─────────────────────────────── */
+        @media(max-width:1100px) {
+            .assets-grid { grid-template-columns:repeat(2,1fr); }
+        }
         @media(max-width:900px) {
             .cards-grid { grid-template-columns:1fr 1fr; }
             .card-hero { grid-column:span 2; }
@@ -151,6 +167,7 @@
             .card-hero { grid-column:span 1; flex-direction:column; text-align:center; }
             .hero-btns { justify-content:center; }
             .no-profile-card { grid-column:span 1; }
+            .assets-grid { grid-template-columns:1fr 1fr; }
         }
     </style>
 </head>
@@ -245,22 +262,23 @@
                         </div>
                     </div>
 
-                    <!-- Assets Uploader -->
+                    <!-- ── ASSETS UPLOADER ── -->
                     <div class="edit-card full">
                         <h3>🗂️ Assets Uploader</h3>
-                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:0.5rem;">
+                        <div class="assets-grid">
 
                             <!-- Background -->
                             <div class="asset-box">
                                 <div class="asset-label">Background</div>
-                                <label class="asset-upload-area" for="bgMedia-inp">
-                                    <input type="file" name="bgMedia" id="bgMedia-inp"
-                                        accept="image/*,video/mp4,video/webm"
-                                        onchange="showFileName(this,'bgMedia-name')">
-                                    <div class="asset-icon">🖼️</div>
+                                <div class="asset-upload-area" id="bgArea" onclick="document.getElementById('bgMedia-inp').click()">
+                                    <div class="asset-icon" id="bgIcon">🖼️</div>
                                     <div class="asset-hint">Click to upload a file</div>
-                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">Image or Video (max 20MB)</div>
-                                </label>
+                                    <div class="asset-sub">Image or Video (max 20MB)</div>
+                                </div>
+                                <input type="file" name="bgMedia" id="bgMedia-inp"
+                                    accept="image/*,video/mp4,video/webm"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'bgMedia-name','bgArea','bgIcon')">
                                 <div class="file-name-show" id="bgMedia-name"></div>
                                 {{CURRENT_BG_PREVIEW}}
                             </div>
@@ -268,19 +286,20 @@
                             <!-- Audio -->
                             <div class="asset-box">
                                 <div class="asset-label">Audio</div>
-                                <label class="asset-upload-area" for="song-inp">
-                                    <input type="file" name="song" id="song-inp"
-                                        accept="audio/mpeg,audio/mp3"
-                                        onchange="showFileName(this,'song-name')">
+                                <div class="asset-upload-area" id="audioArea" onclick="document.getElementById('song-inp').click()">
                                     <div class="asset-icon">🎵</div>
-                                    <div class="asset-hint">Click to open audio manager</div>
-                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">MP3 only</div>
-                                </label>
+                                    <div class="asset-hint">Click to upload audio</div>
+                                    <div class="asset-sub">MP3 only</div>
+                                </div>
+                                <input type="file" name="song" id="song-inp"
+                                    accept="audio/mpeg,audio/mp3"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'song-name','audioArea',null)">
                                 <div class="file-name-show" id="song-name"></div>
                                 {{CURRENT_SONG_PREVIEW}}
-                                <!-- Music Auto-Play Toggle -->
-                                <div class="toggle-row" style="margin-top:0.8rem;">
-                                    <div class="toggle-label" style="font-size:0.75rem;">
+                                <!-- Auto-Play Toggle -->
+                                <div class="toggle-row">
+                                    <div class="toggle-label">
                                         🎵 Auto-Play
                                         <span>Profile open hote hi song chalega</span>
                                     </div>
@@ -294,14 +313,15 @@
                             <!-- Profile Avatar -->
                             <div class="asset-box">
                                 <div class="asset-label">Profile Avatar</div>
-                                <label class="asset-upload-area" for="photo-inp">
-                                    <input type="file" name="photo" id="photo-inp"
-                                        accept="image/*"
-                                        onchange="showFileName(this,'photo-name')">
+                                <div class="asset-upload-area" id="photoArea" onclick="document.getElementById('photo-inp').click()">
                                     <div class="asset-icon">👤</div>
                                     <div class="asset-hint">Click to upload a file</div>
-                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">JPG, PNG, GIF</div>
-                                </label>
+                                    <div class="asset-sub">JPG, PNG, GIF</div>
+                                </div>
+                                <input type="file" name="photo" id="photo-inp"
+                                    accept="image/*"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'photo-name','photoArea',null)">
                                 <div class="file-name-show" id="photo-name"></div>
                                 {{CURRENT_PHOTO_PREVIEW}}
                             </div>
@@ -309,70 +329,30 @@
                             <!-- Custom Cursor -->
                             <div class="asset-box">
                                 <div class="asset-label">Custom Cursor</div>
-                                <label class="asset-upload-area" for="customCursor-inp">
-                                    <input type="file" name="customCursor" id="customCursor-inp"
-                                        accept="image/*"
-                                        onchange="showFileName(this,'cursor-name')">
+                                <div class="asset-upload-area" id="cursorArea" onclick="document.getElementById('customCursor-inp').click()">
                                     <div class="asset-icon">🖱️</div>
                                     <div class="asset-hint">Click to upload a file</div>
-                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">PNG recommended</div>
-                                </label>
+                                    <div class="asset-sub">PNG recommended</div>
+                                </div>
+                                <input type="file" name="customCursor" id="customCursor-inp"
+                                    accept="image/*"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'cursor-name','cursorArea',null)">
                                 <div class="file-name-show" id="cursor-name"></div>
                                 {{CURRENT_CURSOR_PREVIEW}}
                             </div>
 
-                        </div>
+                        </div><!-- /assets-grid -->
 
                         <div class="save-row">
                             <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
                             <button type="submit" class="btn-save">💾 Save Changes</button>
                         </div>
-                    </div>
+                    </div><!-- /edit-card full -->
 
-                                    <div class="file-label-box">
-                                        <span class="file-icon">🖼️</span>
-                                        <span class="file-desc">Click to change photo</span>
-                                    </div>
-                                </div>
-                                <div class="file-name-show" id="photo-name"></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Background Song (MP3)</label>
-                                {{CURRENT_SONG_PREVIEW}}
-                                <div class="file-area">
-                                    <input type="file" name="song" id="song-inp" accept="audio/mpeg,audio/mp3" onchange="showFileName(this,'song-name')">
-                                    <div class="file-label-box">
-                                        <span class="file-icon">🎵</span>
-                                        <span class="file-desc">Click to change song</span>
-                                    </div>
-                                </div>
-                                <div class="file-name-show" id="song-name"></div>
-
-                                <!-- Music Auto-Play Toggle -->
-                                <div class="toggle-row">
-                                    <div class="toggle-label">
-                                        🎵 Auto-Play Music
-                                        <span>Profile open hote hi song chalega</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" name="musicEnabled" id="musicToggle" {{EDIT_MUSIC_ENABLED}}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="save-row">
-                            <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
-                            <button type="submit" class="btn-save">💾 Save Changes</button>
-                        </div>
-                    </div>
-
-                </div>
+                </div><!-- /edit-grid -->
             </form>
-        </div>
+        </div><!-- /tab-edit -->
 
     </main>
 </div>
@@ -388,12 +368,26 @@ function showTab(tab, el) {
     if (el) el.classList.add('active');
 }
 
-function showFileName(input, id) {
-    const el = document.getElementById(id);
-    if (input.files[0]) {
-        el.textContent = '✓ ' + input.files[0].name;
-        el.style.display = 'block';
+function onAssetChange(input, nameId, areaId, iconId) {
+    const nameEl = document.getElementById(nameId);
+    const area   = document.getElementById(areaId);
+    if (!input.files[0]) return;
+    const fname = input.files[0].name;
+    nameEl.textContent = '✓ ' + fname;
+    nameEl.classList.add('visible');
+    // Update border to show selected
+    area.style.borderColor = 'rgba(138,43,226,0.6)';
+    area.style.background  = 'rgba(138,43,226,0.08)';
+    // Update icon for bg media
+    if (iconId) {
+        const isVideo = input.files[0].type.startsWith('video');
+        document.getElementById(iconId).textContent = isVideo ? '🎬' : '🖼️';
     }
+}
+
+// Legacy compat
+function showFileName(input, id) {
+    onAssetChange(input, id, '', null);
 }
 
 function copyUrl() {

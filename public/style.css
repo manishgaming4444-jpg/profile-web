@@ -767,15 +767,36 @@ body.has-banner { padding-top: 44px; }
     word-break: break-word;
 }
 
-/* ─── BACKGROUND VIDEO ────────────────────────────────────── */
+/* ─── BACKGROUND VIDEO / IMAGE ───────────────────────────── */
 .bg-video {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    z-index: -2;
+    z-index: -1;
     opacity: 0.35;
     pointer-events: none;
+}
+
+.bg-image {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* When custom bg is active: make body transparent + dim blobs */
+body.has-bg-media {
+    background: rgba(5, 5, 5, 0.55);
+}
+body.has-bg-media .blob-1,
+body.has-bg-media .blob-2 {
+    opacity: 0.15;
 }
 
 /* ─── ASSETS UPLOADER ────────────────────────────────────── */
