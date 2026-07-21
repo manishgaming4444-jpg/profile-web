@@ -29,6 +29,13 @@ const userSchema = new mongoose.Schema({
     instagram:    { type: String, default: '' },
     discord:      { type: String, default: '' },
     youtube:      { type: String, default: '' },
+    links: [{
+        platform:  { type: String },
+        label:     { type: String },
+        url:       { type: String },
+        color:     { type: String },
+        tc:        { type: String }
+    }],
     photo:        { type: String, default: '' },   // Cloudinary URL
     song:         { type: String, default: '' },   // Cloudinary URL
     bgMedia:      { type: String, default: '' },   // Background image/video URL
@@ -67,6 +74,8 @@ const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });  // 
 // ─── MIDDLEWARE ───────────────────────────────────────────────
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'xonpro-secret',
     resave: false,
@@ -199,6 +208,8 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             </div>`;
         }
 
+        const currentLinksJson = JSON.stringify((existing && existing.links) ? existing.links : []);
+
         const html = dashTemplate
             .replace(/\{\{AVATAR_LETTER\}\}/g,         avatarLetter)
             .replace(/\{\{GOOGLE_EMAIL\}\}/g,           req.user.email || '')
@@ -214,7 +225,8 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g,  currentPhotoPreview)
             .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview)
             .replace(/\{\{CURRENT_BG_PREVIEW\}\}/g,     currentBgPreview)
-            .replace(/\{\{CURRENT_CURSOR_PREVIEW\}\}/g, currentCursorPreview);
+            .replace(/\{\{CURRENT_CURSOR_PREVIEW\}\}/g, currentCursorPreview)
+            .replace(/\{\{CURRENT_LINKS_JSON\}\}/g,     currentLinksJson);
 
 
         res.send(html);
@@ -323,6 +335,22 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
     }
 });
 
+// ─── LINKS UPDATE (JSON) ──────────────────────────────────────
+app.post('/:username/links', isLoggedIn, async (req, res) => {
+    try {
+        const username = req.params.username.toLowerCase();
+        const user = await User.findOne({ username });
+        if (!user)                                return res.status(404).json({ error: 'not found' });
+        if (user.googleId !== req.user.googleId)  return res.status(403).json({ error: 'denied' });
+        user.links = (req.body.links || []).slice(0, 20); // max 20 links
+        await user.save();
+        res.json({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'server error' });
+    }
+});
+
 // ─── PUBLIC PROFILE ───────────────────────────────────────────
 app.get('/:username', async (req, res) => {
     try {
@@ -383,6 +411,16 @@ app.get('/:username', async (req, res) => {
         // Body class for background media
         const bodyClass = user.bgMedia ? 'has-bg-media' : '';
 
+        // Profile icon links
+        const profileLinksHtml = (user.links && user.links.length > 0)
+            ? user.links.map(link => {
+                const iconContent = link.platform === 'custom'
+                    ? `<span style="font-size:1rem;line-height:1">🔗</span>`
+                    : `<img src="https://cdn.simpleicons.org/${link.platform}/${(link.tc||'ffffff').replace('#','')}" alt="${link.label}" width="20" height="20" onerror="this.style.display='none'">`;
+                return `<a href="${link.url}" class="plink" style="background:${link.color}" target="_blank" rel="noopener noreferrer" title="${link.label}">${iconContent}</a>`;
+              }).join('')
+            : '';
+
         template = template
             .replace(/\{\{USERNAME\}\}/g,           user.username)
             .replace(/\{\{DISPLAYNAME\}\}/g,        user.displayname)
@@ -402,7 +440,9 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g,    musicAutoPlay)
             .replace(/\{\{BG_MEDIA_ELEMENT\}\}/g,   bgMediaElement)
             .replace(/\{\{CUSTOM_CURSOR_STYLE\}\}/g, cursorStyle)
-            .replace(/\{\{BODY_CLASS\}\}/g,         bodyClass);
+            .replace(/\{\{BODY_CLASS\}\}/g,         bodyClass)
+            .replace(/\{\{PROFILE_LINKS\}\}/g,      profileLinksHtml);
+
 
 
         res.send(template);

@@ -199,8 +199,11 @@
         <button class="sidebar-item" onclick="showTab('edit', this)">
             <span class="icon">✏️</span> Edit Profile
         </button>
+        <button class="sidebar-item" onclick="showTab('links', this)">
+            <span class="icon">🔗</span> Links
+        </button>
         <a href="/{{USERNAME_LINK}}" target="_blank" class="sidebar-item">
-            <span class="icon">🔗</span> View Profile
+            <span class="icon">🔍</span> View Profile
         </a>
         <div class="sidebar-label">Account</div>
         <a href="/logout" class="sidebar-item">
@@ -217,6 +220,44 @@
             <p class="page-sub">Namaste, {{GOOGLE_NAME}}! Apna profile manage karo 👋</p>
             <div class="cards-grid">
                 {{DASHBOARD_CONTENT}}
+            </div>
+        </div>
+
+        <!-- ── LINKS TAB ── -->
+        <div class="tab-section" id="tab-links">
+            <h1 class="page-title">🔗 Links</h1>
+            <p class="page-sub">Social media aur custom links apne profile pe add karo</p>
+
+            <!-- Platform picker -->
+            <div class="edit-card full" style="margin-bottom:1.5rem;">
+                <h3>🌐 Platform Choose Karo</h3>
+                <p style="font-size:0.82rem;color:rgba(255,255,255,0.3);margin-bottom:1.2rem;">Pick a social media to add to your profile.</p>
+                <div id="platform-grid" style="display:flex;flex-wrap:wrap;gap:0.6rem;"></div>
+
+                <!-- URL input (shown after platform pick) -->
+                <div id="link-input-box" style="display:none;margin-top:1.4rem;padding:1.2rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+                    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;">
+                        <div id="link-input-icon" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+                        <div>
+                            <div id="link-input-label" style="font-weight:700;font-size:0.95rem;"></div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);">URL enter karo</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.8rem;">
+                        <input type="url" id="link-url-inp" class="form-input" placeholder="https://..." style="flex:1;">
+                        <button onclick="addLink()" style="padding:0.75rem 1.5rem;background:#fff;color:#000;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap;">+ Add</button>
+                        <button onclick="closeInput()" style="padding:0.75rem 1rem;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;font-family:Outfit,sans-serif;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Links list -->
+            <div class="edit-card full">
+                <h3>📌 Your Links <span id="links-count" style="font-size:0.78rem;color:rgba(255,255,255,0.3);font-weight:400;"></span></h3>
+                <div id="links-list" style="display:flex;flex-direction:column;gap:0.6rem;min-height:48px;"></div>
+                <div class="save-row">
+                    <button onclick="saveLinks()" class="btn-save" type="button">💾 Save Links</button>
+                </div>
             </div>
         </div>
 
@@ -404,6 +445,9 @@ function copyUrl() {
 if (window.location.hash === '#edit') {
     showTab('edit', document.querySelectorAll('.sidebar-item')[1]);
 }
+if (window.location.hash === '#links') {
+    showTab('links', document.querySelectorAll('.sidebar-item')[2]);
+}
 
 // Show toast if redirected after save
 if (window.location.search.includes('saved=1')) {
@@ -412,6 +456,143 @@ if (window.location.search.includes('saved=1')) {
     setTimeout(() => t.style.display = 'none', 3000);
     history.replaceState({}, '', '/dashboard');
 }
+
+// ─── LINKS MANAGER ────────────────────────────────────────
+const PLATFORMS = [
+    {id:'snapchat',    label:'Snapchat',    color:'#FFFC00', tc:'000000'},
+    {id:'youtube',     label:'YouTube',     color:'#FF0000', tc:'ffffff'},
+    {id:'discord',     label:'Discord',     color:'#5865F2', tc:'ffffff'},
+    {id:'spotify',     label:'Spotify',     color:'#1DB954', tc:'ffffff'},
+    {id:'instagram',   label:'Instagram',   color:'#E1306C', tc:'ffffff'},
+    {id:'x',           label:'X / Twitter', color:'#000000', tc:'ffffff'},
+    {id:'tiktok',      label:'TikTok',      color:'#010101', tc:'ffffff'},
+    {id:'telegram',    label:'Telegram',    color:'#26A5E4', tc:'ffffff'},
+    {id:'soundcloud',  label:'SoundCloud',  color:'#FF5500', tc:'ffffff'},
+    {id:'paypal',      label:'PayPal',      color:'#003087', tc:'ffffff'},
+    {id:'github',      label:'GitHub',      color:'#181717', tc:'ffffff'},
+    {id:'roblox',      label:'Roblox',      color:'#FF0000', tc:'ffffff'},
+    {id:'cashapp',     label:'Cash App',    color:'#00C244', tc:'ffffff'},
+    {id:'venmo',       label:'Venmo',       color:'#3D95CE', tc:'ffffff'},
+    {id:'playstation', label:'PlayStation', color:'#003791', tc:'ffffff'},
+    {id:'xbox',        label:'Xbox',        color:'#107C10', tc:'ffffff'},
+    {id:'twitch',      label:'Twitch',      color:'#9146FF', tc:'ffffff'},
+    {id:'reddit',      label:'Reddit',      color:'#FF4500', tc:'ffffff'},
+    {id:'linkedin',    label:'LinkedIn',    color:'#0A66C2', tc:'ffffff'},
+    {id:'steam',       label:'Steam',       color:'#000000', tc:'ffffff'},
+    {id:'pinterest',   label:'Pinterest',   color:'#E60023', tc:'ffffff'},
+    {id:'kick',        label:'Kick',        color:'#53FC18', tc:'000000'},
+    {id:'bluesky',     label:'Bluesky',     color:'#0085FF', tc:'ffffff'},
+    {id:'facebook',    label:'Facebook',    color:'#1877F2', tc:'ffffff'},
+    {id:'threads',     label:'Threads',     color:'#000000', tc:'ffffff'},
+    {id:'patreon',     label:'Patreon',     color:'#FF424D', tc:'ffffff'},
+    {id:'buymeacoffee',label:'Buy Me a Coffee',color:'#FFDD00',tc:'000000'},
+    {id:'kofi',        label:'Ko-fi',       color:'#FF5E5B', tc:'ffffff'},
+    {id:'gitlab',      label:'GitLab',      color:'#FC6D26', tc:'ffffff'},
+    {id:'trovo',       label:'Trovo',       color:'#19D66B', tc:'ffffff'},
+    {id:'custom',      label:'Custom URL',  color:'#444444', tc:'ffffff'},
+];
+
+let currentLinks = {{CURRENT_LINKS_JSON}};
+let selectedPlatform = null;
+
+// Render platform grid
+const grid = document.getElementById('platform-grid');
+PLATFORMS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.title = p.label;
+    btn.style.cssText = `width:48px;height:48px;border-radius:12px;border:none;cursor:pointer;background:${p.color};display:flex;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.2s;position:relative;`;
+    if (p.id === 'custom') {
+        btn.innerHTML = `<span style="font-size:1.3rem;line-height:1">🔗</span>`;
+    } else {
+        btn.innerHTML = `<img src="https://cdn.simpleicons.org/${p.id}/${p.tc}" width="24" height="24" alt="${p.label}" onerror="this.parentElement.innerHTML='<span style=font-size:0.6rem;color:#${p.tc};font-weight:700;text-align:center;padding:2px>${p.label.substring(0,3)}</span>'">`;
+    }
+    btn.onmouseenter = () => { btn.style.transform='translateY(-3px) scale(1.1)'; btn.style.boxShadow=`0 6px 20px ${p.color}66`; };
+    btn.onmouseleave = () => { btn.style.transform=''; btn.style.boxShadow=''; };
+    btn.onclick = () => pickPlatform(p);
+    grid.appendChild(btn);
+});
+
+function pickPlatform(p) {
+    selectedPlatform = p;
+    const box = document.getElementById('link-input-box');
+    const iconEl = document.getElementById('link-input-icon');
+    document.getElementById('link-input-label').textContent = p.label;
+    iconEl.style.background = p.color;
+    iconEl.innerHTML = p.id === 'custom'
+        ? `<span style="font-size:1.2rem">🔗</span>`
+        : `<img src="https://cdn.simpleicons.org/${p.id}/${p.tc}" width="22" height="22" alt="${p.label}">`;
+    document.getElementById('link-url-inp').value = '';
+    box.style.display = 'block';
+    document.getElementById('link-url-inp').focus();
+}
+
+function closeInput() {
+    document.getElementById('link-input-box').style.display = 'none';
+    selectedPlatform = null;
+}
+
+function addLink() {
+    if (!selectedPlatform) return;
+    const url = document.getElementById('link-url-inp').value.trim();
+    if (!url || !url.startsWith('http')) { alert('Valid URL chahiye (https:// se start honi chahiye)'); return; }
+    currentLinks.push({ platform: selectedPlatform.id, label: selectedPlatform.label, url, color: selectedPlatform.color, tc: selectedPlatform.tc });
+    closeInput();
+    renderLinksList();
+}
+
+function removeLink(idx) {
+    currentLinks.splice(idx, 1);
+    renderLinksList();
+}
+
+function renderLinksList() {
+    const list = document.getElementById('links-list');
+    const count = document.getElementById('links-count');
+    count.textContent = currentLinks.length ? `(${currentLinks.length}/20)` : '';
+    if (!currentLinks.length) {
+        list.innerHTML = `<div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,0.2);font-size:0.85rem;">Abhi tak koi link nahi. Upar se platform choose karo! 👆</div>`;
+        return;
+    }
+    list.innerHTML = currentLinks.map((link, i) => `
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+            <div style="width:38px;height:38px;border-radius:9px;background:${link.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                ${link.platform === 'custom'
+                    ? `<span style="font-size:1.1rem">🔗</span>`
+                    : `<img src="https://cdn.simpleicons.org/${link.platform}/${link.tc||'ffffff'}" width="20" height="20" alt="${link.label}" onerror="this.style.display='none'">`
+                }
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;font-size:0.88rem;">${link.label}</div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${link.url}</div>
+            </div>
+            <button onclick="removeLink(${i})" style="background:rgba(255,60,60,0.1);border:1px solid rgba(255,60,60,0.2);color:#ff6b6b;border-radius:8px;padding:0.4rem 0.8rem;cursor:pointer;font-size:0.8rem;font-family:Outfit,sans-serif;">✕ Remove</button>
+        </div>
+    `).join('');
+}
+
+async function saveLinks() {
+    const btn = document.querySelector('[onclick="saveLinks()"]');
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    try {
+        const res = await fetch('/{{USERNAME_LINK}}/links', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ links: currentLinks })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            const t = document.getElementById('toast');
+            t.textContent = '✓ Links saved!';
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; t.textContent = '✓ Profile updated!'; }, 2500);
+        } else { alert('Save failed. Try again.'); }
+    } catch(e) { alert('Network error.'); }
+    btn.textContent = '💾 Save Links'; btn.disabled = false;
+}
+
+// Init
+renderLinksList();
 </script>
 </body>
 </html>

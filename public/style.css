@@ -767,6 +767,30 @@ body.has-banner { padding-top: 44px; }
     word-break: break-word;
 }
 
+/* ─── PROFILE ICON LINKS (guns.lol style) ────────────────── */
+.profile-icon-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 0.8rem 0;
+}
+.plink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
+    text-decoration: none;
+}
+.plink:hover {
+    transform: translateY(-3px) scale(1.12);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.plink img { display: block; }
+
 /* ─── BACKGROUND VIDEO / IMAGE ───────────────────────────── */
 .bg-video {
     position: fixed;
