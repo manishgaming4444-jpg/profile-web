@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
     youtube:      { type: String, default: '' },
     photo:        { type: String, default: '' },   // Cloudinary URL
     song:         { type: String, default: '' },   // Cloudinary URL
+    bgMedia:      { type: String, default: '' },   // Background image/video URL
+    bgMediaType:  { type: String, default: '' },   // 'image' or 'video'
+    customCursor: { type: String, default: '' },   // Custom cursor image URL
     musicEnabled: { type: Boolean, default: false },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
@@ -47,17 +50,19 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary,
     params: async (req, file) => {
-        const isAudio = file.mimetype.startsWith('audio') || file.fieldname === 'song';
-        const username = (req.body && req.body.username) || (req.params && req.params.username) || 'unknown';
+        const isAudio   = file.mimetype.startsWith('audio') || file.fieldname === 'song';
+        const isBgVideo = file.fieldname === 'bgMedia' && file.mimetype.startsWith('video');
+        const isVideo   = isAudio || isBgVideo;
+        const username  = (req.body && req.body.username) || (req.params && req.params.username) || 'unknown';
         return {
             folder:        `xonpro/${username}`,
-            resource_type: isAudio ? 'video' : 'image',
-            public_id:     file.fieldname,   // always 'photo' or 'song' — overwrites old file
+            resource_type: isVideo ? 'video' : 'image',
+            public_id:     file.fieldname,
             overwrite:     true,
         };
     }
 });
-const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });  // 20 MB max
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -122,7 +127,8 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
         let dashboardContent = '';
         let editDisplayname = '', editBio = '', editInstagram = '',
             editDiscord = '', editYoutube = '', editMusicEnabled = '';
-        let currentPhotoPreview = '', currentSongPreview = '';
+        let currentPhotoPreview = '', currentSongPreview = '',
+            currentBgPreview = '', currentCursorPreview = '';
 
         if (existing) {
             const profileUrl = `xonpro.store/${existing.username}`;
@@ -142,6 +148,12 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
                 : '';
             currentSongPreview = existing.song
                 ? `<div class="current-media">🎵 <span>Current song uploaded</span></div>`
+                : '';
+            currentBgPreview = existing.bgMedia
+                ? `<div class="current-media">${existing.bgMediaType === 'video' ? '🎬' : '🖼️'} <span>Current background uploaded</span></div>`
+                : '';
+            currentCursorPreview = existing.customCursor
+                ? `<div class="current-media">🖱️ <span>Custom cursor uploaded</span></div>`
                 : '';
 
             dashboardContent = `
@@ -200,7 +212,10 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{EDIT_YOUTUBE\}\}/g,           editYoutube)
             .replace(/\{\{EDIT_MUSIC_ENABLED\}\}/g,     editMusicEnabled)
             .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g,  currentPhotoPreview)
-            .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview);
+            .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview)
+            .replace(/\{\{CURRENT_BG_PREVIEW\}\}/g,     currentBgPreview)
+            .replace(/\{\{CURRENT_CURSOR_PREVIEW\}\}/g, currentCursorPreview);
+
 
         res.send(html);
     } catch (err) {
@@ -220,8 +235,10 @@ app.get('/create', async (req, res) => {
 });
 
 app.post('/create', isLoggedIn, upload.fields([
-    { name: 'photo', maxCount: 1 },
-    { name: 'song',  maxCount: 1 }
+    { name: 'photo',        maxCount: 1 },
+    { name: 'song',         maxCount: 1 },
+    { name: 'bgMedia',      maxCount: 1 },
+    { name: 'customCursor', maxCount: 1 }
 ]), async (req, res) => {
     try {
         const existing = await User.findOne({ googleId: req.user.googleId });
@@ -236,21 +253,28 @@ app.post('/create', isLoggedIn, upload.fields([
         const taken = await User.findOne({ username });
         if (taken) return res.redirect(`/create?error=taken&username=${encodeURIComponent(username)}`);
 
-        const photoUrl = req.files['photo'] ? req.files['photo'][0].path : '';
-        const songUrl  = req.files['song']  ? req.files['song'][0].path  : '';
+        const photoUrl      = req.files['photo']        ? req.files['photo'][0].path        : '';
+        const songUrl        = req.files['song']         ? req.files['song'][0].path         : '';
+        const bgMediaUrl     = req.files['bgMedia']      ? req.files['bgMedia'][0].path      : '';
+        const bgMediaType    = req.files['bgMedia']
+            ? (req.files['bgMedia'][0].mimetype.startsWith('video') ? 'video' : 'image') : '';
+        const customCursorUrl = req.files['customCursor'] ? req.files['customCursor'][0].path : '';
 
         await User.create({
             username,
-            displayname: displayname || username,
-            bio:         bio         || '',
-            googleId:    req.user.googleId,
-            googleEmail: req.user.email,
-            instagram:   instagram   || '',
-            discord:     discord     || '',
-            youtube:     youtube     || '',
-            photo:       photoUrl,
-            song:        songUrl,
-            views:       0
+            displayname:  displayname || username,
+            bio:          bio         || '',
+            googleId:     req.user.googleId,
+            googleEmail:  req.user.email,
+            instagram:    instagram   || '',
+            discord:      discord     || '',
+            youtube:      youtube     || '',
+            photo:        photoUrl,
+            song:         songUrl,
+            bgMedia:      bgMediaUrl,
+            bgMediaType:  bgMediaType,
+            customCursor: customCursorUrl,
+            views:        0
         });
 
         res.redirect('/dashboard?saved=1');
@@ -264,8 +288,10 @@ app.post('/create', isLoggedIn, upload.fields([
 app.get('/:username/edit', isLoggedIn, (req, res) => res.redirect('/dashboard#edit'));
 
 app.post('/:username/edit', isLoggedIn, upload.fields([
-    { name: 'photo', maxCount: 1 },
-    { name: 'song',  maxCount: 1 }
+    { name: 'photo',        maxCount: 1 },
+    { name: 'song',         maxCount: 1 },
+    { name: 'bgMedia',      maxCount: 1 },
+    { name: 'customCursor', maxCount: 1 }
 ]), async (req, res) => {
     try {
         const username = req.params.username.toLowerCase();
@@ -281,8 +307,13 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
         user.youtube      = youtube     || user.youtube;
         user.musicEnabled = musicEnabled === 'on';
 
-        if (req.files['photo']) user.photo = req.files['photo'][0].path;
-        if (req.files['song'])  user.song  = req.files['song'][0].path;
+        if (req.files['photo'])        user.photo        = req.files['photo'][0].path;
+        if (req.files['song'])          user.song         = req.files['song'][0].path;
+        if (req.files['bgMedia']) {
+            user.bgMedia     = req.files['bgMedia'][0].path;
+            user.bgMediaType = req.files['bgMedia'][0].mimetype.startsWith('video') ? 'video' : 'image';
+        }
+        if (req.files['customCursor']) user.customCursor = req.files['customCursor'][0].path;
 
         await user.save();
         res.redirect('/dashboard?saved=1');
@@ -336,6 +367,19 @@ app.get('/:username', async (req, res) => {
                </div>`
             : '';
 
+        // Background media element
+        let bgMediaElement = '';
+        if (user.bgMedia && user.bgMediaType === 'video') {
+            bgMediaElement = `<video autoplay muted loop playsinline class="bg-video"><source src="${user.bgMedia}" type="video/mp4"></video>`;
+        } else if (user.bgMedia && user.bgMediaType === 'image') {
+            bgMediaElement = `<div class="bg-image" style="background-image:url('${user.bgMedia}')"></div>`;
+        }
+
+        // Custom cursor style
+        const cursorStyle = user.customCursor
+            ? `<style>*{cursor:url('${user.customCursor}') 16 16,auto!important;}</style>`
+            : '';
+
         template = template
             .replace(/\{\{USERNAME\}\}/g,           user.username)
             .replace(/\{\{DISPLAYNAME\}\}/g,        user.displayname)
@@ -352,7 +396,10 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{CREATE_BANNER\}\}/g,      createBanner)
             .replace(/\{\{PROFILE_BIO\}\}/g,        bioHtml)
             .replace(/\{\{VIEWS\}\}/g,              viewsCount)
-            .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g,    musicAutoPlay);
+            .replace(/\{\{MUSIC_AUTO_PLAY\}\}/g,    musicAutoPlay)
+            .replace(/\{\{BG_MEDIA_ELEMENT\}\}/g,   bgMediaElement)
+            .replace(/\{\{CUSTOM_CURSOR_STYLE\}\}/g, cursorStyle);
+
 
         res.send(template);
     } catch (err) {

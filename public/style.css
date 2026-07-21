@@ -767,3 +767,65 @@ body.has-banner { padding-top: 44px; }
     word-break: break-word;
 }
 
+/* ─── BACKGROUND VIDEO ────────────────────────────────────── */
+.bg-video {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* ─── ASSETS UPLOADER ────────────────────────────────────── */
+.asset-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.asset-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.3px;
+    margin-bottom: 0.2rem;
+}
+.asset-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+}
+.asset-upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+.asset-upload-area:hover {
+    border-color: rgba(138,43,226,0.5);
+    background: rgba(138,43,226,0.06);
+}
+.asset-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+}
+.asset-hint {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+}
+

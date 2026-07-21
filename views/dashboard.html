@@ -245,16 +245,90 @@
                         </div>
                     </div>
 
-                    <!-- Media Upload -->
+                    <!-- Assets Uploader -->
                     <div class="edit-card full">
-                        <h3>🖼️ Profile Photo & Song</h3>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                        <h3>🗂️ Assets Uploader</h3>
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:0.5rem;">
 
-                            <div class="form-group">
-                                <label>Profile Photo</label>
+                            <!-- Background -->
+                            <div class="asset-box">
+                                <div class="asset-label">Background</div>
+                                <label class="asset-upload-area" for="bgMedia-inp">
+                                    <input type="file" name="bgMedia" id="bgMedia-inp"
+                                        accept="image/*,video/mp4,video/webm"
+                                        onchange="showFileName(this,'bgMedia-name')">
+                                    <div class="asset-icon">🖼️</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">Image or Video (max 20MB)</div>
+                                </label>
+                                <div class="file-name-show" id="bgMedia-name"></div>
+                                {{CURRENT_BG_PREVIEW}}
+                            </div>
+
+                            <!-- Audio -->
+                            <div class="asset-box">
+                                <div class="asset-label">Audio</div>
+                                <label class="asset-upload-area" for="song-inp">
+                                    <input type="file" name="song" id="song-inp"
+                                        accept="audio/mpeg,audio/mp3"
+                                        onchange="showFileName(this,'song-name')">
+                                    <div class="asset-icon">🎵</div>
+                                    <div class="asset-hint">Click to open audio manager</div>
+                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">MP3 only</div>
+                                </label>
+                                <div class="file-name-show" id="song-name"></div>
+                                {{CURRENT_SONG_PREVIEW}}
+                                <!-- Music Auto-Play Toggle -->
+                                <div class="toggle-row" style="margin-top:0.8rem;">
+                                    <div class="toggle-label" style="font-size:0.75rem;">
+                                        🎵 Auto-Play
+                                        <span>Profile open hote hi song chalega</span>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" name="musicEnabled" id="musicToggle" {{EDIT_MUSIC_ENABLED}}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Profile Avatar -->
+                            <div class="asset-box">
+                                <div class="asset-label">Profile Avatar</div>
+                                <label class="asset-upload-area" for="photo-inp">
+                                    <input type="file" name="photo" id="photo-inp"
+                                        accept="image/*"
+                                        onchange="showFileName(this,'photo-name')">
+                                    <div class="asset-icon">👤</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">JPG, PNG, GIF</div>
+                                </label>
+                                <div class="file-name-show" id="photo-name"></div>
                                 {{CURRENT_PHOTO_PREVIEW}}
-                                <div class="file-area">
-                                    <input type="file" name="photo" id="photo-inp" accept="image/*" onchange="showFileName(this,'photo-name')">
+                            </div>
+
+                            <!-- Custom Cursor -->
+                            <div class="asset-box">
+                                <div class="asset-label">Custom Cursor</div>
+                                <label class="asset-upload-area" for="customCursor-inp">
+                                    <input type="file" name="customCursor" id="customCursor-inp"
+                                        accept="image/*"
+                                        onchange="showFileName(this,'cursor-name')">
+                                    <div class="asset-icon">🖱️</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-hint" style="font-size:0.65rem;opacity:0.3;margin-top:0.2rem;">PNG recommended</div>
+                                </label>
+                                <div class="file-name-show" id="cursor-name"></div>
+                                {{CURRENT_CURSOR_PREVIEW}}
+                            </div>
+
+                        </div>
+
+                        <div class="save-row">
+                            <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
+                            <button type="submit" class="btn-save">💾 Save Changes</button>
+                        </div>
+                    </div>
+
                                     <div class="file-label-box">
                                         <span class="file-icon">🖼️</span>
                                         <span class="file-desc">Click to change photo</span>
