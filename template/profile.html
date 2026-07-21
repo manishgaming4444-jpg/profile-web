@@ -40,28 +40,33 @@
             <div class="hero-visual hidden-delayed">
                 <div class="glass-card main-card">
                     <div class="card-body">
+
                         <div class="profile-image-container">
                             <img src="{{PHOTO_URL}}" alt="{{DISPLAYNAME}} Profile" class="profile-image" draggable="false">
                         </div>
+
                         <div class="profile-name-box">
                             <h2 class="profile-display-name">{{DISPLAYNAME}}</h2>
                             {{PROFILE_BIO}}
+
+                            <!-- Social icon links (guns.lol style) — inside card -->
+                            <div class="profile-icon-links">
+                                {{PROFILE_LINKS}}
+                            </div>
+
+                            <!-- Old text links (shown only if set) -->
+                            <div class="social-links-inline">
+                                <a href="{{INSTAGRAM}}" target="_blank" class="social-btn-sm" style="{{INSTAGRAM_VISIBLE}}">Instagram</a>
+                                <a href="{{DISCORD}}"   target="_blank" class="social-btn-sm" style="{{DISCORD_VISIBLE}}">Discord</a>
+                                <a href="{{YOUTUBE}}"   target="_blank" class="social-btn-sm" style="{{YOUTUBE_VISIBLE}}">YouTube</a>
+                            </div>
+
                             <div class="views-badge">👁️ {{VIEWS}} views</div>
                         </div>
+
                         <div class="hologram-circle"></div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Icon Links (guns.lol style) -->
-            <div class="profile-icon-links">
-                {{PROFILE_LINKS}}
-            </div>
-
-            <div class="social-links">
-                <a href="{{INSTAGRAM}}" target="_blank" class="social-btn" style="{{INSTAGRAM_VISIBLE}}">Instagram</a>
-                <a href="{{DISCORD}}" target="_blank" class="social-btn" style="{{DISCORD_VISIBLE}}">Discord</a>
-                <a href="{{YOUTUBE}}" target="_blank" class="social-btn" style="{{YOUTUBE_VISIBLE}}">YouTube</a>
             </div>
         </section>
 
