@@ -392,6 +392,7 @@ app.get('/:username', async (req, res) => {
             ? `<div class="create-banner" id="create-banner">
                     <span>✨ <strong>${user.displayname}</strong> ka profile dekh rahe ho? Apna bhi banao!</span>
                     <a href="/create">Free mein banao →</a>
+                    <button onclick="this.closest('#create-banner').style.cssText='opacity:0;pointer-events:none;height:0;padding:0;overflow:hidden;transition:all 0.3s ease'" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;margin-left:12px;opacity:0.7;line-height:1;padding:0 4px;transition:opacity 0.2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="Close">✕</button>
                </div>`
             : '';
 
