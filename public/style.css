@@ -85,7 +85,7 @@ p {
 /* Navigation */
 .glass-nav {
     position: fixed;
-    top: 1.5rem;
+    top: 2.5rem;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
