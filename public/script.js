@@ -90,10 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (musicIcon) musicIcon.textContent = '\u23f8';
                 document.body.classList.add('music-active');
             }).catch(() => {
-                // Browser blocked autoplay — show toast & pulse button
-                createMusicToast();
-                if (musicBtn) musicBtn.style.animation = 'pulse 1.5s infinite';
-
+                // Browser blocked autoplay — silently start on first interaction
                 const onInteract = () => {
                     startMusic();
                     document.removeEventListener('click', onInteract);
@@ -103,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener('touchstart', onInteract);
             });
         }
+
 
         // Manual play/pause toggle
         musicBtn.addEventListener('click', (e) => {
