@@ -450,7 +450,8 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{CUSTOM_CURSOR_STYLE\}\}/g, cursorStyle)
             .replace(/\{\{BODY_CLASS\}\}/g,         bodyClass)
             .replace(/\{\{PROFILE_LINKS\}\}/g,      profileLinksHtml)
-            .replace(/\{\{NAME_FONT\}\}/g,          user.nameFont      || 'Outfit')
+            .replace(/\{\{NAME_FONT_CSS\}\}/g,      (user.nameFont || 'Outfit'))
+            .replace(/\{\{NAME_FONT_URL\}\}/g,      (user.nameFont || 'Outfit').replace(/ /g, '+'))
             .replace(/\{\{NAME_ANIMATION\}\}/g,     user.nameAnimation || 'none');
 
 

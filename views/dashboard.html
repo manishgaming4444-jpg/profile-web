@@ -677,14 +677,14 @@ renderLinksList();
 const FONTS = [
     { label: 'Outfit',           value: 'Outfit' },
     { label: 'Orbitron',         value: 'Orbitron' },
-    { label: 'Press Start 2P',   value: 'Press+Start+2P' },
-    { label: 'Bebas Neue',       value: 'Bebas+Neue' },
+    { label: 'Press Start 2P',   value: 'Press Start 2P' },
+    { label: 'Bebas Neue',       value: 'Bebas Neue' },
     { label: 'Cinzel',           value: 'Cinzel' },
     { label: 'Pacifico',         value: 'Pacifico' },
     { label: 'Rajdhani',         value: 'Rajdhani' },
-    { label: 'Dancing Script',   value: 'Dancing+Script' },
+    { label: 'Dancing Script',   value: 'Dancing Script' },
     { label: 'VT323',            value: 'VT323' },
-    { label: 'Permanent Marker', value: 'Permanent+Marker' },
+    { label: 'Permanent Marker', value: 'Permanent Marker' },
 ];
 const ANIMS = [
     { label: '⬜ None',          value: 'none' },
@@ -712,19 +712,20 @@ const animCSS = {
 let curFont = document.getElementById('nameFontInput').value || 'Outfit';
 let curAnim = document.getElementById('nameAnimInput').value || 'none';
 
-function loadGFont(fVal) {
-    const id = 'gf-' + fVal;
+function loadGFont(fontName) {
+    const id = 'gf-' + fontName.replace(/ /g,'-');
     if (!document.getElementById(id)) {
         const l = document.createElement('link');
         l.id = id; l.rel = 'stylesheet';
-        l.href = `https://fonts.googleapis.com/css2?family=${fVal}:wght@400;700;900&display=swap`;
+        const urlName = fontName.replace(/ /g,'+');
+        l.href = `https://fonts.googleapis.com/css2?family=${urlName}&display=swap`;
         document.head.appendChild(l);
     }
 }
 function updatePreview() {
     const prev = document.getElementById('namePreview');
-    const fontName = curFont.replace(/\+/g,' ');
-    prev.style.cssText = `font-size:1.8rem;font-weight:700;color:#fff;transition:all 0.3s;font-family:'${fontName}',sans-serif;${animCSS[curAnim] || ''}`;
+    if (!prev) return;
+    prev.style.cssText = `font-size:1.8rem;font-weight:700;color:#fff;transition:all 0.3s;font-family:'${curFont}',sans-serif;${animCSS[curAnim] || ''}`;
 }
 function buildFontGrid() {
     const grid = document.getElementById('fontGrid');
