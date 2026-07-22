@@ -454,6 +454,52 @@ app.get('/:username', async (req, res) => {
     }
 });
 
+// ─── DELETE ACCOUNT ──────────────────────────────────────────
+app.delete('/account/delete', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ ok: false, error: 'Not logged in' });
+    try {
+        const user = await User.findOne({ googleId: req.user.googleId });
+        if (!user) return res.status(404).json({ ok: false, error: 'User not found' });
+
+        // Delete Cloudinary assets
+        const extractPublicId = (url) => {
+            if (!url) return null;
+            const parts = url.split('/');
+            const file = parts[parts.length - 1];
+            const folder = parts[parts.length - 2];
+            const nameOnly = file.split('.')[0];
+            return `${folder}/${nameOnly}`;
+        };
+
+        const toDelete = [
+            { url: user.photo,        type: 'image' },
+            { url: user.bgMedia,      type: user.bgMediaType === 'video' ? 'video' : 'image' },
+            { url: user.customCursor, type: 'image' },
+            { url: user.song,         type: 'video' },  // audio stored as video in cloudinary
+        ].filter(a => a.url);
+
+        for (const asset of toDelete) {
+            try {
+                const pid = extractPublicId(asset.url);
+                if (pid) await cloudinary.uploader.destroy(pid, { resource_type: asset.type });
+            } catch(e) { /* ignore cloudinary errors */ }
+        }
+
+        // Delete from MongoDB
+        await User.deleteOne({ googleId: req.user.googleId });
+
+        // Logout session
+        req.logout(() => {
+            req.session.destroy(() => {
+                res.json({ ok: true });
+            });
+        });
+    } catch (err) {
+        console.error('Delete account error:', err);
+        res.status(500).json({ ok: false, error: 'Server error' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`\n🚀 Server running at: ${BASE_URL}`);
     console.log(`📝 Create profile:    ${BASE_URL}/create\n`);
