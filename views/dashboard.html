@@ -7,6 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        @keyframes nameGlowPulse { 0%,100%{text-shadow:0 0 8px rgba(255,255,255,0.4),0 0 20px rgba(138,43,226,0.4)} 50%{text-shadow:0 0 20px rgba(255,255,255,0.9),0 0 50px rgba(138,43,226,0.9),0 0 80px rgba(255,0,127,0.6)} }
+        @keyframes nameGradientWave { 0%{filter:hue-rotate(0deg) brightness(1.2)} 50%{filter:hue-rotate(180deg) brightness(1.5)} 100%{filter:hue-rotate(360deg) brightness(1.2)} }
+        @keyframes nameFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes nameFlicker { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.3} }
+        @keyframes nameGlitch { 0%,100%{transform:none} 10%{transform:translate(-4px)} 20%{transform:translate(4px)} 30%{transform:none} }
+        @keyframes nameBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes nameRainbow { 0%{color:#ff6b6b} 16%{color:#ffd93d} 33%{color:#6bcb77} 50%{color:#4ecdc4} 66%{color:#a855f7} 83%{color:#f97316} 100%{color:#ff6b6b} }
+        @keyframes nameShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+    </style>
+    <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Outfit',sans-serif; background:#08080a; color:#fff; min-height:100vh; display:flex; flex-direction:column; }
 
@@ -167,6 +177,18 @@
         .asset-sub { font-size:0.63rem; color:rgba(255,255,255,0.18); text-align:center; margin-top:0.1rem; }
         .file-name-show { font-size:0.73rem; color:#8a2be2; display:none; margin-top:0.3rem; word-break:break-all; }
         .file-name-show.visible { display:block; }
+
+        /* ─── NAME STYLE PICKER ──────────────────────── */
+        .ns-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.35); letter-spacing:0.5px; margin-bottom:0.7rem; }
+        .ns-grid { display:flex; flex-wrap:wrap; gap:0.5rem; }
+        .ns-chip {
+            padding:0.45rem 0.9rem; border-radius:50px; font-size:0.82rem; cursor:pointer;
+            background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+            color:rgba(255,255,255,0.55); transition:all 0.2s; white-space:nowrap;
+            font-family: inherit;
+        }
+        .ns-chip:hover { background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.2); }
+        .ns-chip.active { background:rgba(138,43,226,0.18); border-color:rgba(138,43,226,0.55); color:#fff; box-shadow:0 0 12px rgba(138,43,226,0.25); }
 
         /* ─── RESPONSIVE ─────────────────────────────── */
         @media(max-width:1100px) {
@@ -419,6 +441,29 @@
 
                         </div><!-- /assets-grid -->
 
+                        <!-- ── NAME STYLE PICKER ── -->
+                        <div style="margin-top:1.8rem;">
+                            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:rgba(255,255,255,0.8);">✍️ Name Style</h3>
+
+                            <!-- Hidden inputs -->
+                            <input type="hidden" name="nameFont"      id="nameFontInput"      value="{{EDIT_NAME_FONT}}">
+                            <input type="hidden" name="nameAnimation" id="nameAnimInput"      value="{{EDIT_NAME_ANIMATION}}">
+
+                            <!-- Font Picker -->
+                            <div class="ns-label">🔤 Font</div>
+                            <div class="ns-grid" id="fontGrid"></div>
+
+                            <!-- Animation Picker -->
+                            <div class="ns-label" style="margin-top:1.4rem;">✨ Animation</div>
+                            <div class="ns-grid" id="animGrid"></div>
+
+                            <!-- Live Preview -->
+                            <div style="margin-top:1.4rem;padding:1.2rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;">
+                                <div style="font-size:0.72rem;color:rgba(255,255,255,0.25);margin-bottom:0.5rem;letter-spacing:1px;text-transform:uppercase;">Preview</div>
+                                <div id="namePreview" style="font-size:1.8rem;font-weight:700;color:#fff;transition:all 0.3s;">{{EDIT_DISPLAYNAME}}</div>
+                            </div>
+                        </div>
+
                         <div class="save-row">
                             <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
                             <button type="submit" class="btn-save">💾 Save Changes</button>
@@ -627,6 +672,108 @@ async function saveLinks() {
 
 // Init
 renderLinksList();
+
+// ── Name Style Picker ────────────────────────
+const FONTS = [
+    { label: 'Outfit',           value: 'Outfit' },
+    { label: 'Orbitron',         value: 'Orbitron' },
+    { label: 'Press Start 2P',   value: 'Press+Start+2P' },
+    { label: 'Bebas Neue',       value: 'Bebas+Neue' },
+    { label: 'Cinzel',           value: 'Cinzel' },
+    { label: 'Pacifico',         value: 'Pacifico' },
+    { label: 'Rajdhani',         value: 'Rajdhani' },
+    { label: 'Dancing Script',   value: 'Dancing+Script' },
+    { label: 'VT323',            value: 'VT323' },
+    { label: 'Permanent Marker', value: 'Permanent+Marker' },
+];
+const ANIMS = [
+    { label: '⬜ None',          value: 'none' },
+    { label: '✨ Glow Pulse',    value: 'glow-pulse' },
+    { label: '🌈 Gradient',      value: 'gradient-wave' },
+    { label: '🫧 Float',         value: 'float' },
+    { label: '⚡ Flicker',       value: 'flicker' },
+    { label: '💥 Glitch',        value: 'glitch' },
+    { label: '🎾 Bounce',        value: 'bounce' },
+    { label: '🌈 Rainbow',       value: 'rainbow' },
+    { label: '📳 Shake',         value: 'shake' },
+];
+const animCSS = {
+    'none':          '',
+    'glow-pulse':    'animation:nameGlowPulse 2.5s ease-in-out infinite',
+    'gradient-wave': 'background:linear-gradient(135deg,#8a2be2,#ff007f,#00c8ff,#8a2be2);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:nameGradientWave 3s linear infinite',
+    'float':         'animation:nameFloat 3s ease-in-out infinite;display:inline-block',
+    'flicker':       'animation:nameFlicker 4s infinite',
+    'glitch':        'animation:nameGlitch 3s infinite',
+    'bounce':        'animation:nameBounce 1.5s infinite;display:inline-block',
+    'rainbow':       'animation:nameRainbow 3s linear infinite',
+    'shake':         'animation:nameShake 0.6s infinite',
+};
+
+let curFont = document.getElementById('nameFontInput').value || 'Outfit';
+let curAnim = document.getElementById('nameAnimInput').value || 'none';
+
+function loadGFont(fVal) {
+    const id = 'gf-' + fVal;
+    if (!document.getElementById(id)) {
+        const l = document.createElement('link');
+        l.id = id; l.rel = 'stylesheet';
+        l.href = `https://fonts.googleapis.com/css2?family=${fVal}:wght@400;700;900&display=swap`;
+        document.head.appendChild(l);
+    }
+}
+function updatePreview() {
+    const prev = document.getElementById('namePreview');
+    const fontName = curFont.replace(/\+/g,' ');
+    prev.style.cssText = `font-size:1.8rem;font-weight:700;color:#fff;transition:all 0.3s;font-family:'${fontName}',sans-serif;${animCSS[curAnim] || ''}`;
+}
+function buildFontGrid() {
+    const grid = document.getElementById('fontGrid');
+    FONTS.forEach(f => {
+        loadGFont(f.value);
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'ns-chip' + (f.value === curFont ? ' active' : '');
+        chip.style.fontFamily = `'${f.label}', sans-serif`;
+        chip.textContent = f.label;
+        chip.onclick = () => {
+            curFont = f.value;
+            document.getElementById('nameFontInput').value = f.value;
+            grid.querySelectorAll('.ns-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            updatePreview();
+        };
+        grid.appendChild(chip);
+    });
+}
+function buildAnimGrid() {
+    const grid = document.getElementById('animGrid');
+    ANIMS.forEach(a => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'ns-chip' + (a.value === curAnim ? ' active' : '');
+        chip.textContent = a.label;
+        chip.onclick = () => {
+            curAnim = a.value;
+            document.getElementById('nameAnimInput').value = a.value;
+            grid.querySelectorAll('.ns-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            updatePreview();
+        };
+        grid.appendChild(chip);
+    });
+}
+// pre-load current font
+loadGFont(curFont);
+buildFontGrid();
+buildAnimGrid();
+updatePreview();
+
+// sync preview text with display name input
+document.querySelector('input[name="displayname"]')?.addEventListener('input', e => {
+    document.getElementById('namePreview').childNodes.forEach(n => {});
+    document.getElementById('namePreview').firstChild && (document.getElementById('namePreview').textContent = e.target.value || 'Preview');
+    updatePreview();
+});
 
 // ── Delete Account ───────────────────────────
 function openDeleteModal() {
