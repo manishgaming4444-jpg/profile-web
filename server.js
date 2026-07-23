@@ -452,7 +452,8 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{PROFILE_LINKS\}\}/g,      profileLinksHtml)
             .replace(/\{\{NAME_FONT_CSS\}\}/g,      (user.nameFont || 'Outfit'))
             .replace(/\{\{NAME_FONT_URL\}\}/g,      (user.nameFont || 'Outfit').replace(/ /g, '+'))
-            .replace(/\{\{NAME_ANIMATION\}\}/g,     user.nameAnimation || 'none');
+            .replace(/\{\{NAME_ANIMATION\}\}/g,     user.nameAnimation || 'none')
+            .replace(/\{\{SONG_EXISTS\}\}/g,        user.song ? 'true' : 'false');
 
 
 
