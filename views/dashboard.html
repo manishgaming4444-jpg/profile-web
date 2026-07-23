@@ -178,17 +178,100 @@
         .file-name-show { font-size:0.73rem; color:#8a2be2; display:none; margin-top:0.3rem; word-break:break-all; }
         .file-name-show.visible { display:block; }
 
-        /* ─── NAME STYLE PICKER ──────────────────────── */
-        .ns-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.35); letter-spacing:0.5px; margin-bottom:0.7rem; }
-        .ns-grid { display:flex; flex-wrap:wrap; gap:0.5rem; }
-        .ns-chip {
-            padding:0.45rem 0.9rem; border-radius:50px; font-size:0.82rem; cursor:pointer;
-            background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
-            color:rgba(255,255,255,0.55); transition:all 0.2s; white-space:nowrap;
-            font-family: inherit;
+        /* ─── NAME STYLE & EFFECTS — PREMIUM UI ─────────────── */
+        .style-section {
+            margin-top: 1.8rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 1.5rem 1.6rem;
         }
-        .ns-chip:hover { background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.2); }
-        .ns-chip.active { background:rgba(138,43,226,0.18); border-color:rgba(138,43,226,0.55); color:#fff; box-shadow:0 0 12px rgba(138,43,226,0.25); }
+        .style-section-header {
+            display: flex; align-items: center; gap: 0.7rem;
+            margin-bottom: 1.4rem;
+            padding-bottom: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .style-section-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: linear-gradient(135deg, rgba(138,43,226,0.35), rgba(0,200,255,0.2));
+            border: 1px solid rgba(138,43,226,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .style-section-title {
+            font-size: 0.95rem; font-weight: 700; color: #fff; letter-spacing: 0.2px;
+        }
+        .style-section-sub {
+            font-size: 0.72rem; color: rgba(255,255,255,0.28); margin-top: 0.1rem;
+        }
+        .ns-label {
+            font-size: 0.68rem; font-weight: 700;
+            color: rgba(255,255,255,0.28); letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 0.6rem;
+        }
+        .ns-group { margin-bottom: 1.2rem; }
+        .ns-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .ns-chip {
+            padding: 0.4rem 0.9rem; border-radius: 50px; font-size: 0.8rem; cursor: pointer;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.45); transition: all 0.18s; white-space: nowrap;
+            font-family: inherit; position: relative; overflow: hidden;
+        }
+        .ns-chip::before {
+            content:''; position:absolute; inset:0;
+            background: linear-gradient(135deg, rgba(138,43,226,0.08), transparent);
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .ns-chip:hover { background:rgba(255,255,255,0.07); color:#fff; border-color:rgba(255,255,255,0.18); transform:translateY(-1px); }
+        .ns-chip:hover::before { opacity:1; }
+        .ns-chip.active {
+            background: linear-gradient(135deg, rgba(138,43,226,0.22), rgba(0,200,255,0.1));
+            border-color: rgba(138,43,226,0.6);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(138,43,226,0.3), inset 0 0 8px rgba(138,43,226,0.08);
+        }
+        /* Color swatch ring */
+        .color-swatch-wrap { position:relative; }
+        .color-swatch-wrap .check {
+            position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            font-size:0.75rem;color:#fff;opacity:0;transition:opacity 0.15s;
+            text-shadow:0 1px 3px rgba(0,0,0,0.8);
+        }
+        .color-swatch-wrap.active-sw .check { opacity:1; }
+        /* Preview box */
+        .ns-preview-box {
+            margin-top: 1rem;
+            padding: 1.4rem;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .ns-preview-box::before {
+            content:'PREVIEW';
+            position:absolute;top:0.5rem;left:50%;transform:translateX(-50%);
+            font-size:0.6rem;letter-spacing:2px;color:rgba(255,255,255,0.15);font-weight:700;
+        }
+        .ns-preview-box::after {
+            content:''; position:absolute; bottom:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(138,43,226,0.3),transparent);
+        }
+        /* Effects preview canvas */
+        .effect-preview-wrap {
+            margin-top: 0.9rem;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
+            position: relative;
+        }
+        .effect-preview-label {
+            position:absolute;top:0.45rem;left:0.75rem;
+            font-size:0.58rem;letter-spacing:1.8px;color:rgba(255,255,255,0.2);
+            font-weight:700;text-transform:uppercase;
+        }
 
         /* ─── RESPONSIVE ─────────────────────────────── */
         @media(max-width:1100px) {
@@ -442,8 +525,14 @@
                         </div><!-- /assets-grid -->
 
                         <!-- ── NAME STYLE PICKER ── -->
-                        <div style="margin-top:1.8rem;">
-                            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:rgba(255,255,255,0.8);">✍️ Name Style</h3>
+                        <div class="style-section">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">✍️</div>
+                                <div>
+                                    <div class="style-section-title">Name Style</div>
+                                    <div class="style-section-sub">Font, color & animation for your display name</div>
+                                </div>
+                            </div>
 
                             <!-- Hidden inputs -->
                             <input type="hidden" name="nameFont"      id="nameFontInput"      value="{{EDIT_NAME_FONT}}">
@@ -451,38 +540,46 @@
                             <input type="hidden" name="nameColor"     id="nameColorInput"     value="{{EDIT_NAME_COLOR}}">
 
                             <!-- Font Picker -->
-                            <div class="ns-label">🔤 Font</div>
-                            <div class="ns-grid" id="fontGrid"></div>
+                            <div class="ns-group">
+                                <div class="ns-label">🔤 Font Family</div>
+                                <div class="ns-grid" id="fontGrid"></div>
+                            </div>
 
                             <!-- Color Picker -->
-                            <div class="ns-label" style="margin-top:1.4rem;">🎨 Name Color</div>
-                            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-                                <div id="colorSwatches" style="display:flex;flex-wrap:wrap;gap:0.4rem;"></div>
-                                <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:rgba(255,255,255,0.4);cursor:pointer;">
-                                    Custom
-                                    <input type="color" id="colorCustom" value="{{EDIT_NAME_COLOR}}"
-                                        style="width:32px;height:32px;border:none;border-radius:8px;cursor:pointer;background:none;padding:0;">
-                                </label>
+                            <div class="ns-group">
+                                <div class="ns-label">🎨 Name Color</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+                                    <div id="colorSwatches" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+                                    <label style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.8rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:50px;cursor:pointer;font-size:0.76rem;color:rgba(255,255,255,0.4);">
+                                        <span>Custom</span>
+                                        <input type="color" id="colorCustom" value="{{EDIT_NAME_COLOR}}"
+                                            style="width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none;">
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- Animation Picker -->
-                            <div class="ns-label" style="margin-top:1.4rem;">✨ Animation</div>
-                            <div class="ns-grid" id="animGrid"></div>
+                            <div class="ns-group">
+                                <div class="ns-label">✨ Animation</div>
+                                <div class="ns-grid" id="animGrid"></div>
+                            </div>
 
                             <!-- Live Preview -->
-                            <div style="margin-top:1.4rem;padding:1.2rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;">
-                                <div style="font-size:0.72rem;color:rgba(255,255,255,0.25);margin-bottom:0.5rem;letter-spacing:1px;text-transform:uppercase;">Preview</div>
-                                <div id="namePreview" style="font-size:1.8rem;font-weight:700;color:#fff;transition:all 0.3s;">{{EDIT_DISPLAYNAME}}</div>
+                            <div class="ns-preview-box">
+                                <div id="namePreview" style="font-size:2rem;font-weight:700;color:#fff;transition:all 0.3s;margin-top:0.4rem;">{{EDIT_DISPLAYNAME}}</div>
                             </div>
                         </div>
 
                         <!-- ── BACKGROUND EFFECTS PICKER ── -->
-                        <div style="margin-top:1.8rem;">
-                            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:rgba(255,255,255,0.8);">🌌 Background Effects</h3>
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">🌌</div>
+                                <div>
+                                    <div class="style-section-title">Background Effects</div>
+                                    <div class="style-section-sub">Animated particle effects on your profile</div>
+                                </div>
+                            </div>
                             <input type="hidden" name="bgEffect" id="bgEffectInput" value="{{EDIT_BG_EFFECT}}">
-                            <div class="ns-grid" id="effectGrid"></div>
-                            <!-- Mini Preview -->
-                            <div style="margin-top:1rem;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
                                 <canvas id="effectPreviewCanvas" width="600" height="90"
                                     style="width:100%;height:90px;display:block;background:#0a0a0f;"></canvas>
                             </div>
