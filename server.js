@@ -355,6 +355,7 @@ app.post('/:username/links', isLoggedIn, async (req, res) => {
         if (!user)                                return res.status(404).json({ error: 'not found' });
         if (user.googleId !== req.user.googleId)  return res.status(403).json({ error: 'denied' });
         user.links = (req.body.links || []).slice(0, 20); // max 20 links
+        user.markModified('links');
         await user.save();
         res.json({ ok: true });
     } catch (err) {
