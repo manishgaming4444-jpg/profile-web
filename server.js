@@ -422,8 +422,8 @@ app.get('/:username', async (req, res) => {
         const profileLinksHtml = (user.links && user.links.length > 0)
             ? user.links.map(link => {
                 const iconContent = link.platform === 'custom'
-                    ? `<span style="font-size:1rem;line-height:1">🔗</span>`
-                    : `<img src="https://cdn.simpleicons.org/${link.platform}/${(link.tc||'ffffff').replace('#','')}" alt="${link.label}" width="20" height="20" onerror="this.style.display='none'">`;
+                    ? `<span style="font-size:1.4rem;line-height:1">🔗</span>`
+                    : `<img src="https://cdn.simpleicons.org/${link.platform}/${(link.tc||'ffffff').replace('#','')}" alt="${link.label}" width="28" height="28" onerror="this.style.display='none'">`;
                 return `<a href="${link.url}" class="plink" style="background:${link.color};--glow:${link.color}" target="_blank" rel="noopener noreferrer" title="${link.label}">${iconContent}</a>`;
               }).join('')
             : '';
