@@ -13,7 +13,10 @@
     <style>
         .profile-display-name {
             font-family: '{{NAME_FONT_CSS}}', sans-serif !important;
+            color: {{NAME_COLOR}} !important;
         }
+        /* gradient-wave overrides color via background-clip */
+        .name-anim-gradient-wave { color: transparent !important; }
         /* animations */
         @keyframes nameGlowPulse { 0%,100%{text-shadow:0 0 8px rgba(255,255,255,0.4),0 0 20px rgba(138,43,226,0.4)} 50%{text-shadow:0 0 20px rgba(255,255,255,0.9),0 0 50px rgba(138,43,226,0.9),0 0 80px rgba(255,0,127,0.6)} }
         @keyframes nameGradientWave { 0%{filter:hue-rotate(0deg) brightness(1.2)} 50%{filter:hue-rotate(180deg) brightness(1.5)} 100%{filter:hue-rotate(360deg) brightness(1.2)} }
