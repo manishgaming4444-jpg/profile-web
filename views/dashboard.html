@@ -464,6 +464,13 @@
                             </div>
                         </div>
 
+                        <!-- ── BACKGROUND EFFECTS PICKER ── -->
+                        <div style="margin-top:1.8rem;">
+                            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:rgba(255,255,255,0.8);">🌌 Background Effects</h3>
+                            <input type="hidden" name="bgEffect" id="bgEffectInput" value="{{EDIT_BG_EFFECT}}">
+                            <div class="ns-grid" id="effectGrid"></div>
+                        </div>
+
                         <div class="save-row">
                             <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
                             <button type="submit" class="btn-save">💾 Save Changes</button>
@@ -768,6 +775,37 @@ loadGFont(curFont);
 buildFontGrid();
 buildAnimGrid();
 updatePreview();
+
+// ── Background Effects Picker ─────────────────
+const EFFECTS = [
+    { label: '⬜ None',        value: 'none' },
+    { label: '🌌 Aurora',      value: 'aurora' },
+    { label: '❄️ Snowflakes',  value: 'snowflakes' },
+    { label: '🌧️ Rain',        value: 'rain' },
+    { label: '🌠 Night Sky',   value: 'nightsky' },
+    { label: '📺 Old TV',      value: 'oldtv' },
+    { label: '🫧 Fireflies',   value: 'fireflies' },
+];
+let curEffect = document.getElementById('bgEffectInput')?.value || 'none';
+
+function buildEffectGrid() {
+    const grid = document.getElementById('effectGrid');
+    if (!grid) return;
+    EFFECTS.forEach(ef => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'ns-chip' + (ef.value === curEffect ? ' active' : '');
+        chip.textContent = ef.label;
+        chip.onclick = () => {
+            curEffect = ef.value;
+            document.getElementById('bgEffectInput').value = ef.value;
+            grid.querySelectorAll('.ns-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+        };
+        grid.appendChild(chip);
+    });
+}
+buildEffectGrid();
 
 // sync preview text with display name input
 document.querySelector('input[name="displayname"]')?.addEventListener('input', e => {

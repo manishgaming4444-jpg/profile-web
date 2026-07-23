@@ -44,6 +44,7 @@ const userSchema = new mongoose.Schema({
     musicEnabled: { type: Boolean, default: false },
     nameFont:     { type: String, default: 'Outfit' },
     nameAnimation:{ type: String, default: 'none' },
+    bgEffect:     { type: String, default: 'none' },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
 });
@@ -226,6 +227,7 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{EDIT_MUSIC_ENABLED\}\}/g,     editMusicEnabled)
             .replace(/\{\{EDIT_NAME_FONT\}\}/g,         (existing && existing.nameFont)      || 'Outfit')
             .replace(/\{\{EDIT_NAME_ANIMATION\}\}/g,    (existing && existing.nameAnimation) || 'none')
+            .replace(/\{\{EDIT_BG_EFFECT\}\}/g,         (existing && existing.bgEffect)      || 'none')
             .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g,  currentPhotoPreview)
             .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview)
             .replace(/\{\{CURRENT_BG_PREVIEW\}\}/g,     currentBgPreview)
@@ -324,6 +326,7 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
         user.musicEnabled = musicEnabled === 'on';
         if (nameFont)      user.nameFont      = nameFont;
         if (nameAnimation) user.nameAnimation = nameAnimation;
+        if (req.body.bgEffect !== undefined) user.bgEffect = req.body.bgEffect || 'none';
 
         if (req.files['photo'])        user.photo        = req.files['photo'][0].path;
         if (req.files['song'])          user.song         = req.files['song'][0].path;
@@ -453,6 +456,7 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{NAME_FONT_CSS\}\}/g,      (user.nameFont || 'Outfit'))
             .replace(/\{\{NAME_FONT_URL\}\}/g,      (user.nameFont || 'Outfit').replace(/ /g, '+'))
             .replace(/\{\{NAME_ANIMATION\}\}/g,     user.nameAnimation || 'none')
+            .replace(/\{\{BG_EFFECT\}\}/g,           user.bgEffect      || 'none')
             .replace(/\{\{SONG_EXISTS\}\}/g,        user.song ? 'true' : 'false');
 
 
