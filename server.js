@@ -9,6 +9,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const mongoose = require('mongoose');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const MongoStore = require('connect-mongo');
 
 const app      = express();
 const PORT     = process.env.PORT || 3000;
@@ -81,9 +82,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'xonpro-secret',
+    secret: process.env.SESSION_SECRET || (() => { console.warn('⚠️  SESSION_SECRET not set! Using insecure default.'); return 'xonpro-secret-change-me'; })(),
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 7 * 24 * 60 * 60,   // 7 days
+        autoRemove: 'native'
+    }),
     cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
 }));
 app.use(passport.initialize());
@@ -319,16 +325,17 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
         if (!user)                                  return res.status(404).send('Profile not found.');
         if (user.googleId !== req.user.googleId)    return res.status(403).send('Access denied.');
 
-        const { displayname, bio, instagram, discord, youtube, musicEnabled, nameFont, nameAnimation } = req.body;
-        user.displayname  = displayname || user.displayname;
-        user.bio          = bio !== undefined ? bio : (user.bio || '');
-        user.instagram    = instagram   || user.instagram;
-        user.discord      = discord     || user.discord;
-        user.youtube      = youtube     || user.youtube;
-        user.musicEnabled = musicEnabled === 'on';
+        const { displayname, bio, musicEnabled, nameFont, nameAnimation } = req.body;
+        user.displayname  = displayname  || user.displayname;
+        user.bio          = bio !== undefined ? bio.slice(0, 150) : (user.bio || '');
+        if ('musicEnabled' in req.body) user.musicEnabled = musicEnabled === 'on';
         if (nameFont)      user.nameFont      = nameFont;
         if (nameAnimation) user.nameAnimation = nameAnimation;
-        if (req.body.nameColor)  user.nameColor  = req.body.nameColor;
+        // Validate hex color before saving
+        const hexColorRe = /^#[0-9A-Fa-f]{6}$/;
+        if (req.body.nameColor && hexColorRe.test(req.body.nameColor)) {
+            user.nameColor = req.body.nameColor;
+        }
         if (req.body.bgEffect !== undefined) user.bgEffect = req.body.bgEffect || 'none';
 
         if (req.files['photo'])        user.photo        = req.files['photo'][0].path;
@@ -354,7 +361,10 @@ app.post('/:username/links', isLoggedIn, async (req, res) => {
         const user = await User.findOne({ username });
         if (!user)                                return res.status(404).json({ error: 'not found' });
         if (user.googleId !== req.user.googleId)  return res.status(403).json({ error: 'denied' });
-        user.links = (req.body.links || []).slice(0, 20); // max 20 links
+        user.links = (req.body.links || []).slice(0, 20).filter(link => {
+            try { return link.url && /^https?:\/\//.test(link.url) && new URL(link.url); }
+            catch { return false; }
+        });
         user.markModified('links');
         await user.save();
         res.json({ ok: true });
@@ -379,9 +389,11 @@ app.get('/:username', async (req, res) => {
                 </body></html>`);
         }
 
-        // Increment views atomically
-        await User.findByIdAndUpdate(user._id, { $inc: { views: 1 } });
-        const viewsCount = ((user.views || 0) + 1).toLocaleString('en-IN');
+        // Increment views atomically and get updated count
+        const updated = await User.findByIdAndUpdate(
+            user._id, { $inc: { views: 1 } }, { new: true }
+        );
+        const viewsCount = (updated.views || 1).toLocaleString('en-IN');
 
         let template = fs.readFileSync(path.join(__dirname, 'template', 'profile.html'), 'utf-8');
 
@@ -517,6 +529,19 @@ app.delete('/account/delete', async (req, res) => {
         console.error('Delete account error:', err);
         res.status(500).json({ ok: false, error: 'Server error' });
     }
+});
+
+// ─── MULTER ERROR HANDLER ────────────────────────────────────
+app.use((err, req, res, next) => {
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).send(`
+            <html><body style="font-family:sans-serif;background:#08080a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;">
+                <h2>❌ File Too Large</h2>
+                <p>Maximum file size is 20MB. Please upload a smaller file.</p>
+                <a href="/dashboard" style="color:#8a2be2;margin-top:1rem;">← Back to Dashboard</a>
+            </body></html>`);
+    }
+    next(err);
 });
 
 app.listen(PORT, () => {

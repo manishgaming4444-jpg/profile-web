@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => splash.remove(), 850);
     }
 
+    // If no song — remove splash immediately, no point showing it
+    if (splash && !window.HAS_SONG) {
+        splash.remove();
+    }
+
     // Volume slider
     if (volumeSlider && bgMusic) {
         bgMusic.volume = volumeSlider.value;
