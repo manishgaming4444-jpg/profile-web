@@ -82,9 +82,21 @@
         .ec-views { font-size:0.72rem; color:rgba(255,255,255,0.25); margin-top:0.2rem; }
         .ec-empty { grid-column:1/-1; text-align:center; padding:4rem; color:rgba(255,255,255,0.2); font-size:1rem; }
 
-        @media (max-width:600px) {
-            .hero h1 { font-size:1.8rem; }
-            .explore-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); }
+        @media (max-width:640px) {
+            .hero { padding:2.5rem 1rem 1.5rem; }
+            .hero h1 { font-size:1.7rem; }
+            .hero p { font-size:0.88rem; }
+            .topbar { padding:0 1rem; }
+            .topbar-links a:not(.btn-dash) { display:none; }
+            .explore-main { padding:1.5rem 0.8rem 3rem; }
+            .explore-grid { grid-template-columns:repeat(2,1fr); gap:0.7rem; }
+            .explore-card { padding:1.1rem 0.7rem; border-radius:14px; }
+            .explore-card img, .explore-card > div:first-child { width:52px; height:52px; }
+            .ec-name { font-size:0.85rem; }
+            .search-wrap { max-width:100%; }
+        }
+        @media (max-width:360px) {
+            .explore-grid { grid-template-columns:1fr 1fr; }
         }
     </style>
 </head>

@@ -750,6 +750,13 @@ function showTab(tab, el) {
     document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     if (el) el.classList.add('active');
+    // Sync bottom nav
+    document.querySelectorAll('.bn-item[data-tab]').forEach(b => {
+        b.classList.toggle('bn-active', b.dataset.tab === tab);
+    });
+    // Scroll main content to top
+    const main = document.querySelector('.main');
+    if (main) main.scrollTop = 0;
 }
 
 function onAssetChange(input, nameId, areaId, iconId) {
@@ -1211,6 +1218,11 @@ document.querySelector('input[name="displayname"]')?.addEventListener('input', e
     updatePreview();
 });
 
+// Bottom nav init - mark overview as active
+document.querySelectorAll('.bn-item[data-tab]').forEach(b => {
+    b.classList.toggle('bn-active', b.dataset.tab === 'overview');
+});
+
 // ── Delete Account ───────────────────────────
 function openDeleteModal() {
     document.getElementById('deleteConfirmInput').value = '';
@@ -1267,15 +1279,15 @@ bnActivate('overview'); // init
 
 <!-- MOBILE BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav">
-    <button class="bn-item bn-active" data-tab="overview" onclick="showTab('overview', document.querySelector('.sidebar-item'))">
+    <button class="bn-item bn-active" data-tab="overview" onclick="showTab('overview', null)">
         <span class="bn-icon">🏠</span>
         <span>Home</span>
     </button>
-    <button class="bn-item" data-tab="edit" onclick="showTab('edit', document.querySelectorAll('.sidebar-item')[1])">
+    <button class="bn-item" data-tab="edit" onclick="showTab('edit', null)">
         <span class="bn-icon">✏️</span>
         <span>Edit</span>
     </button>
-    <button class="bn-item" data-tab="links" onclick="showTab('links', document.querySelectorAll('.sidebar-item')[2])">
+    <button class="bn-item" data-tab="links" onclick="showTab('links', null)">
         <span class="bn-icon">🔗</span>
         <span>Links</span>
     </button>
