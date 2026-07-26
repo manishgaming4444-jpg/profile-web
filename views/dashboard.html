@@ -273,6 +273,23 @@
             font-weight:700;text-transform:uppercase;
         }
 
+        /* ─── THEME CARDS ─────────────────────────────── */
+        .theme-card {
+            display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+            cursor:pointer; border-radius:14px; padding:0.6rem 0.4rem;
+            border:2px solid transparent;
+            transition:all 0.2s;
+        }
+        .theme-card:hover { border-color:rgba(255,255,255,0.15); transform:translateY(-2px); }
+        .theme-card.active { border-color:var(--tc1,#8a2be2); box-shadow:0 0 14px color-mix(in srgb,var(--tc1,#8a2be2) 40%,transparent); }
+        .theme-preview {
+            width:100%; min-height:70px; border-radius:10px;
+            display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:0.7rem;
+        }
+        .theme-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.6); }
+        .theme-card.active .theme-label { color:#fff; }
+
         /* ─── RESPONSIVE ─────────────────────────────── */
         @media(max-width:1100px) {
             .assets-grid { grid-template-columns:repeat(2,1fr); }
@@ -575,6 +592,83 @@
                             </div>
                         </div>
 
+                        <!-- ── PROFILE THEME PICKER ── -->
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">🎨</div>
+                                <div>
+                                    <div class="style-section-title">Profile Theme</div>
+                                    <div class="style-section-sub">Choose the vibe of your profile page</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="profileTheme" id="profileThemeInput" value="{{EDIT_PROFILE_THEME}}">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:0.7rem;">
+                                <div class="theme-card" data-theme="default" onclick="pickTheme(this)"
+                                    style="--tc1:#8a2be2;--tc2:#ff007f;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0d080e,#150d20);border:1px solid rgba(138,43,226,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8a2be2,#ff007f);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(138,43,226,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Default</div>
+                                </div>
+                                <div class="theme-card" data-theme="neon" onclick="pickTheme(this)"
+                                    style="--tc1:#00ff41;--tc2:#39ff14;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#020d02,#041504);border:1px solid rgba(0,255,65,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00ff41,#39ff14);margin-bottom:0.4rem;box-shadow:0 0 12px rgba(0,255,65,0.6);"></div>
+                                        <div style="height:5px;width:60%;background:rgba(0,255,65,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(0,255,65,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Neon</div>
+                                </div>
+                                <div class="theme-card" data-theme="retro" onclick="pickTheme(this)"
+                                    style="--tc1:#f59e0b;--tc2:#ef4444;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0d0800,#1a0f00);border:1px solid rgba(245,158,11,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(245,158,11,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(245,158,11,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Retro</div>
+                                </div>
+                                <div class="theme-card" data-theme="minimal" onclick="pickTheme(this)"
+                                    style="--tc1:#e5e5e5;--tc2:#a3a3a3;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0a0a0a,#141414);border:1px solid rgba(255,255,255,0.1);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e5e5e5,#a3a3a3);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(255,255,255,0.4);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Minimal</div>
+                                </div>
+                                <div class="theme-card" data-theme="ocean" onclick="pickTheme(this)"
+                                    style="--tc1:#0ea5e9;--tc2:#06b6d4;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#00060f,#001824);border:1px solid rgba(14,165,233,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#06b6d4);margin-bottom:0.4rem;box-shadow:0 0 12px rgba(14,165,233,0.5);"></div>
+                                        <div style="height:5px;width:60%;background:rgba(14,165,233,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(14,165,233,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Ocean</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── LIVE PROFILE PREVIEW ── -->
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">👁️</div>
+                                <div>
+                                    <div class="style-section-title">Live Preview</div>
+                                    <div class="style-section-sub">See how your profile looks in real-time</div>
+                                </div>
+                            </div>
+                            <div id="profilePreviewCard" style="background:#0a0a10;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:0.8rem;text-align:center;min-height:160px;position:relative;overflow:hidden;">
+                                <div id="previewBlobBg" style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(138,43,226,0.18),transparent);pointer-events:none;transition:background 0.4s;"></div>
+                                <div id="previewAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8a2be2,#ff007f);display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(138,43,226,0.4);flex-shrink:0;">👤</div>
+                                <div id="previewName" style="font-size:1.5rem;font-weight:800;color:#fff;transition:all 0.3s;position:relative;">{{EDIT_DISPLAYNAME}}</div>
+                                <div id="previewBio" style="font-size:0.82rem;color:rgba(255,255,255,0.4);max-width:260px;line-height:1.5;position:relative;"></div>
+                                <div style="position:relative;font-size:0.7rem;color:rgba(255,255,255,0.2);margin-top:0.3rem;">xonpro.store/@{{USERNAME_LINK}}</div>
+                            </div>
+                        </div>
+
                         <div class="save-row">
                             <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
                             <button type="submit" class="btn-save">💾 Save Changes</button>
@@ -756,7 +850,10 @@ function renderLinksList() {
                 <div style="font-weight:600;font-size:0.88rem;">${link.label}</div>
                 <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${link.url}</div>
             </div>
-            <button onclick="removeLink(${i})" style="background:rgba(255,60,60,0.1);border:1px solid rgba(255,60,60,0.2);color:#ff6b6b;border-radius:8px;padding:0.4rem 0.8rem;cursor:pointer;font-size:0.8rem;font-family:Outfit,sans-serif;">✕ Remove</button>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex-shrink:0;">
+                ${link.clicks ? `<div style="font-size:0.68rem;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:0.15rem 0.6rem;">&#128293; ${link.clicks} clicks</div>` : ''}
+                <button onclick="removeLink(${i})" style="background:rgba(255,60,60,0.1);border:1px solid rgba(255,60,60,0.2);color:#ff6b6b;border-radius:8px;padding:0.4rem 0.8rem;cursor:pointer;font-size:0.8rem;font-family:Outfit,sans-serif;">✕ Remove</button>
+            </div>
         </div>
     `).join('');
 }
@@ -783,6 +880,56 @@ async function saveLinks() {
 
 // Init
 renderLinksList();
+
+// ── Theme Picker ─────────────────────────────────────────────
+const THEME_BLOBS = {
+    default: 'radial-gradient(ellipse 80% 60% at 50% -10%,rgba(138,43,226,0.25),transparent)',
+    neon:    'radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,255,65,0.2),transparent)',
+    retro:   'radial-gradient(ellipse 80% 60% at 50% -10%,rgba(245,158,11,0.2),transparent)',
+    minimal: 'none',
+    ocean:   'radial-gradient(ellipse 80% 60% at 50% -10%,rgba(14,165,233,0.22),transparent)',
+};
+
+function pickTheme(el) {
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    const theme = el.dataset.theme;
+    document.getElementById('profileThemeInput').value = theme;
+    // Update live preview blob
+    const blob = document.getElementById('previewBlobBg');
+    if (blob) blob.style.background = THEME_BLOBS[theme] || THEME_BLOBS.default;
+}
+
+function initThemePicker() {
+    const saved = document.getElementById('profileThemeInput').value || 'default';
+    document.querySelectorAll('.theme-card').forEach(c => {
+        if (c.dataset.theme === saved) c.classList.add('active');
+    });
+    const blob = document.getElementById('previewBlobBg');
+    if (blob) blob.style.background = THEME_BLOBS[saved] || THEME_BLOBS.default;
+}
+initThemePicker();
+
+// ── Live Profile Preview ──────────────────────────────────────
+function initLivePreview() {
+    const nameInput = document.querySelector('input[name="displayname"]');
+    const bioInput  = document.querySelector('textarea[name="bio"]');
+    const prevName  = document.getElementById('previewName');
+    const prevBio   = document.getElementById('previewBio');
+    if (nameInput && prevName) {
+        nameInput.addEventListener('input', () => {
+            prevName.textContent = nameInput.value || '—';
+        });
+    }
+    if (bioInput && prevBio) {
+        bioInput.addEventListener('input', () => {
+            prevBio.textContent = bioInput.value;
+        });
+        // Init bio preview
+        prevBio.textContent = bioInput.value;
+    }
+}
+initLivePreview();
 
 // ── Name Style Picker ────────────────────────
 const FONTS = [

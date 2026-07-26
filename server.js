@@ -35,18 +35,20 @@ const userSchema = new mongoose.Schema({
         label:     { type: String },
         url:       { type: String },
         color:     { type: String },
-        tc:        { type: String }
+        tc:        { type: String },
+        clicks:    { type: Number, default: 0 }
     }],
-    photo:        { type: String, default: '' },   // Cloudinary URL
-    song:         { type: String, default: '' },   // Cloudinary URL
-    bgMedia:      { type: String, default: '' },   // Background image/video URL
-    bgMediaType:  { type: String, default: '' },   // 'image' or 'video'
-    customCursor: { type: String, default: '' },   // Custom cursor image URL
+    photo:        { type: String, default: '' },
+    song:         { type: String, default: '' },
+    bgMedia:      { type: String, default: '' },
+    bgMediaType:  { type: String, default: '' },
+    customCursor: { type: String, default: '' },
     musicEnabled: { type: Boolean, default: false },
     nameFont:     { type: String, default: 'Outfit' },
     nameAnimation:{ type: String, default: 'none' },
     nameColor:    { type: String, default: '#ffffff' },
     bgEffect:     { type: String, default: 'none' },
+    profileTheme: { type: String, default: 'default' },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
 });
@@ -236,6 +238,7 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{EDIT_NAME_ANIMATION\}\}/g,    (existing && existing.nameAnimation) || 'none')
             .replace(/\{\{EDIT_NAME_COLOR\}\}/g,        (existing && existing.nameColor)     || '#ffffff')
             .replace(/\{\{EDIT_BG_EFFECT\}\}/g,         (existing && existing.bgEffect)      || 'none')
+            .replace(/\{\{EDIT_PROFILE_THEME\}\}/g,     (existing && existing.profileTheme)  || 'default')
             .replace(/\{\{CURRENT_PHOTO_PREVIEW\}\}/g,  currentPhotoPreview)
             .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview)
             .replace(/\{\{CURRENT_BG_PREVIEW\}\}/g,     currentBgPreview)
@@ -337,6 +340,10 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
             user.nameColor = req.body.nameColor;
         }
         if (req.body.bgEffect !== undefined) user.bgEffect = req.body.bgEffect || 'none';
+        const validThemes = ['default','neon','retro','minimal','ocean'];
+        if (req.body.profileTheme && validThemes.includes(req.body.profileTheme)) {
+            user.profileTheme = req.body.profileTheme;
+        }
 
         if (req.files['photo'])        user.photo        = req.files['photo'][0].path;
         if (req.files['song'])          user.song         = req.files['song'][0].path;
@@ -372,6 +379,49 @@ app.post('/:username/links', isLoggedIn, async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'server error' });
     }
+});
+
+// ─── PUBLIC EXPLORE / SEARCH ─────────────────────────────────
+app.get('/explore', async (req, res) => {
+    try {
+        const q = (req.query.q || '').toLowerCase().trim();
+        const filter = q
+            ? { $or: [{ username: new RegExp(q,'i') }, { displayname: new RegExp(q,'i') }] }
+            : {};
+        const profiles = await User.find(filter, 'username displayname photo views createdAt profileTheme')
+            .sort({ views: -1 }).limit(60).lean();
+        const exploreTemplate = fs.readFileSync(path.join(__dirname, 'views', 'explore.html'), 'utf-8');
+        const cardsHtml = profiles.map(p => {
+            const photo = p.photo
+                ? `<img src="${p.photo}" alt="${p.displayname}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);">`
+                : `<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8a2be2,#ff007f);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">👤</div>`;
+            return `<a href="/${p.username}" class="explore-card">${photo}<div class="ec-name">${p.displayname}</div><div class="ec-user">@${p.username}</div><div class="ec-views">👁️ ${(p.views||0).toLocaleString('en-IN')}</div></a>`;
+        }).join('');
+        const html = exploreTemplate
+            .replace('{{SEARCH_QUERY}}', q)
+            .replace('{{EXPLORE_CARDS}}', cardsHtml || '<div class="ec-empty">No profiles found.</div>')
+            .replace('{{PROFILE_COUNT}}', profiles.length);
+        res.send(html);
+    } catch(err) { console.error(err); res.status(500).send('Server error.'); }
+});
+
+// ─── LINK CLICK TRACKING ──────────────────────────────────────
+app.get('/:username/link/:idx/click', async (req, res) => {
+    try {
+        const username = req.params.username.toLowerCase();
+        const idx = parseInt(req.params.idx, 10);
+        const user = await User.findOne({ username });
+        if (!user || isNaN(idx) || idx < 0 || idx >= user.links.length) {
+            return res.redirect('/');
+        }
+        const targetUrl = user.links[idx].url;
+        // Increment click count atomically
+        await User.findOneAndUpdate(
+            { username, [`links.${idx}`]: { $exists: true } },
+            { $inc: { [`links.${idx}.clicks`]: 1 } }
+        );
+        res.redirect(targetUrl);
+    } catch(err) { res.redirect('/'); }
 });
 
 // ─── PUBLIC PROFILE ───────────────────────────────────────────
@@ -434,16 +484,17 @@ app.get('/:username', async (req, res) => {
             ? `<style>*{cursor:url('${user.customCursor}') 16 16,auto!important;}</style>`
             : '';
 
-        // Body class for background media
-        const bodyClass = user.bgMedia ? 'has-bg-media' : '';
+        // Body class for background media + theme
+        const themeClass = `theme-${user.profileTheme || 'default'}`;
+        const bodyClass = [user.bgMedia ? 'has-bg-media' : '', themeClass].filter(Boolean).join(' ');
 
-        // Profile icon links
+        // Profile icon links — use /click redirect for analytics
         const profileLinksHtml = (user.links && user.links.length > 0)
-            ? user.links.map(link => {
+            ? user.links.map((link, idx) => {
                 const iconContent = link.platform === 'custom'
                     ? `<span style="font-size:1.4rem;line-height:1">🔗</span>`
                     : `<img src="https://cdn.simpleicons.org/${link.platform}/${(link.tc||'ffffff').replace('#','')}" alt="${link.label}" width="28" height="28" onerror="this.style.display='none'">`;
-                return `<a href="${link.url}" class="plink" style="background:${link.color};--glow:${link.color}" target="_blank" rel="noopener noreferrer" title="${link.label}">${iconContent}</a>`;
+                return `<a href="/${user.username}/link/${idx}/click" class="plink" style="background:${link.color};--glow:${link.color}" target="_blank" rel="noopener noreferrer" title="${link.label}">${iconContent}</a>`;
               }).join('')
             : '';
 
@@ -474,6 +525,7 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{NAME_ANIMATION\}\}/g,     user.nameAnimation || 'none')
             .replace(/\{\{NAME_COLOR\}\}/g,          user.nameColor     || '#ffffff')
             .replace(/\{\{BG_EFFECT\}\}/g,           user.bgEffect      || 'none')
+            .replace(/\{\{PROFILE_THEME\}\}/g,       user.profileTheme  || 'default')
             .replace(/\{\{SONG_EXISTS\}\}/g,        user.song ? 'true' : 'false');
 
 

@@ -103,3 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ── Copy Profile URL ──────────────────────────────────────────
+function copyProfileUrl() {
+    const url = window.PROFILE_URL || window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('share-btn-text');
+        if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = 'Share'; }, 2000); }
+    }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = url; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        const btn = document.getElementById('share-btn-text');
+        if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = 'Share'; }, 2000); }
+    });
+}

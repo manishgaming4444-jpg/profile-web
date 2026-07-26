@@ -90,11 +90,17 @@
 
     <nav class="glass-nav">
         <div class="logo">{{DISPLAYNAME}}</div>
-        <div class="music-player">
-            <button id="music-btn" class="glass-btn" {{SONG_HIDDEN}}>
-                <span class="icon">▶</span>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+            <button id="share-btn" onclick="copyProfileUrl()" title="Copy profile link"
+                style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:50px;padding:0.35rem 0.9rem;color:rgba(255,255,255,0.7);font-family:'Outfit',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:0.35rem;">
+                🔗 <span id="share-btn-text">Share</span>
             </button>
-            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider" {{SONG_HIDDEN}}>
+            <div class="music-player">
+                <button id="music-btn" class="glass-btn" {{SONG_HIDDEN}}>
+                    <span class="icon">▶</span>
+                </button>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider" {{SONG_HIDDEN}}>
+            </div>
         </div>
     </nav>
 
@@ -143,7 +149,7 @@
 
     {{EDIT_BUTTON}}
 
-    <script>window.MUSIC_AUTO_PLAY = {{MUSIC_AUTO_PLAY}}; window.HAS_SONG = {{SONG_EXISTS}}; window.BG_EFFECT = '{{BG_EFFECT}}';</script>
+    <script>window.MUSIC_AUTO_PLAY = {{MUSIC_AUTO_PLAY}}; window.HAS_SONG = {{SONG_EXISTS}}; window.BG_EFFECT = '{{BG_EFFECT}}'; window.PROFILE_URL = 'https://xonpro.store/{{USERNAME}}';</script>
     <script src="/public/script.js"></script>
     <script src="/public/effects.js"></script>
 </body>
