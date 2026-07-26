@@ -9,7 +9,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const mongoose = require('mongoose');
 const { v2: cloudinary } = require('cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const MongoStore = require('connect-mongo');
+const { MongoStore } = require('connect-mongo');
 
 const app      = express();
 const PORT     = process.env.PORT || 3000;
