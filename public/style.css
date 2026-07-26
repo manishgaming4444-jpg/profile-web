@@ -521,15 +521,24 @@ main {
     .glass-nav {
         top: 0.8rem;
         width: 95%;
-        padding: 0.7rem 1.2rem;
+        padding: 0.55rem 1rem;
     }
 
     .logo {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        max-width: 40vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
+    /* Hide "Share" text, keep only 🔗 icon */
+    .share-label { display: none; }
+
+    #share-btn { padding: 0.35rem 0.65rem; font-size: 0.85rem; }
+
     .volume-slider {
-        width: 55px;
+        width: 50px;
     }
 
     .hero-visual {
