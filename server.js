@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema({
     nameColor:    { type: String, default: '#ffffff' },
     bgEffect:     { type: String, default: 'none' },
     profileTheme: { type: String, default: 'default' },
+    banned:       { type: Boolean, default: false },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
 });
@@ -439,6 +440,18 @@ app.get('/:username', async (req, res) => {
                 </body></html>`);
         }
 
+        // Banned check — owner can still view their own profile
+        const isOwnerVisit = req.isAuthenticated() && req.user.googleId === user.googleId;
+        if (user.banned && !isOwnerVisit) {
+            return res.status(403).send(`
+                <html><body style="font-family:sans-serif;background:#050505;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;">
+                    <div style="font-size:3rem;">🚫</div>
+                    <h1 style="font-size:2rem;margin-top:1rem;">Account Suspended</h1>
+                    <p style="color:rgba(255,255,255,0.4);margin-top:0.5rem;">This profile has been suspended.</p>
+                    <a href="/explore" style="color:#8a2be2;margin-top:1.5rem;">← Explore other profiles</a>
+                </body></html>`);
+        }
+
         // Increment views atomically and get updated count
         const updated = await User.findByIdAndUpdate(
             user._id, { $inc: { views: 1 } }, { new: true }
@@ -581,6 +594,109 @@ app.delete('/account/delete', async (req, res) => {
         console.error('Delete account error:', err);
         res.status(500).json({ ok: false, error: 'Server error' });
     }
+});
+
+// ─── SECRET ADMIN PANEL ───────────────────────────────────────
+const ADMIN_SECRET     = process.env.ADMIN_SECRET || 'xonpro-admin-2024';
+const ADMIN_SESS_KEY   = 'xonAdminAuth';
+
+function isAdmin(req, res, next) {
+    if (req.session && req.session[ADMIN_SESS_KEY]) return next();
+    res.redirect('/xon-admin-secret');
+}
+
+// Login page
+app.get('/xon-admin-secret', (req, res) => {
+    if (req.session && req.session[ADMIN_SESS_KEY]) return res.redirect('/xon-admin-panel');
+    res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:#08080a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .box{background:#111114;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:2.5rem;width:320px;text-align:center}
+    h2{font-size:1.4rem;margin-bottom:.3rem}p{color:rgba(255,255,255,.35);font-size:.85rem;margin-bottom:1.8rem}
+    input{width:100%;padding:.75rem 1rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:1rem;margin-bottom:1rem;outline:none}
+    button{width:100%;padding:.8rem;background:linear-gradient(135deg,#8a2be2,#c026d3);border:none;border-radius:10px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+    .err{color:#ff6b6b;font-size:.82rem;margin-top:.5rem}</style></head>
+    <body><div class="box"><h2>🔐 Admin Access</h2><p>Enter secret password</p>
+    <form method="POST"><input type="password" name="password" placeholder="Password" autofocus required>
+    <button type="submit">Login</button>${req.query.err ? '<div class="err">❌ Wrong password</div>' : ''}</form></div></body></html>`);
+});
+
+app.post('/xon-admin-secret', express.urlencoded({ extended: false }), (req, res) => {
+    if (req.body.password === ADMIN_SECRET) { req.session[ADMIN_SESS_KEY] = true; return res.redirect('/xon-admin-panel'); }
+    res.redirect('/xon-admin-secret?err=1');
+});
+
+// Admin dashboard
+app.get('/xon-admin-panel', isAdmin, async (req, res) => {
+    try {
+        const users = await User.find({}, 'username displayname photo views banned createdAt googleEmail').sort({ createdAt: -1 }).lean();
+        const totalViews = users.reduce((s, u) => s + (u.views || 0), 0);
+        const rows = users.map((u, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td><div style="display:flex;align-items:center;gap:.6rem;">
+                    ${u.photo ? `<img src="${u.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : '<div style="width:32px;height:32px;border-radius:50%;background:#8a2be2;display:flex;align-items:center;justify-content:center;">👤</div>'}
+                    <div><div style="font-weight:600;font-size:.88rem;">@${u.username}</div><div style="font-size:.72rem;color:rgba(255,255,255,.35);">${u.displayname}</div></div></div></td>
+                <td style="font-size:.8rem;color:rgba(255,255,255,.4);">${u.googleEmail || '—'}</td>
+                <td style="text-align:center;">${(u.views || 0).toLocaleString()}</td>
+                <td style="text-align:center;"><span style="padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:${u.banned ? 'rgba(255,60,60,.15)' : 'rgba(0,200,0,.1)'};color:${u.banned ? '#ff6b6b' : '#4ade80'};">${u.banned ? '🚫 Banned' : '✅ Active'}</span></td>
+                <td><div style="display:flex;gap:.4rem;">
+                    <a href="/${u.username}" target="_blank" style="padding:.3rem .7rem;background:rgba(255,255,255,.06);border-radius:7px;color:#fff;text-decoration:none;font-size:.78rem;">🔗</a>
+                    <form method="POST" action="/xon-admin-ban" style="display:inline;">
+                        <input type="hidden" name="username" value="${u.username}">
+                        <input type="hidden" name="action" value="${u.banned ? 'unban' : 'ban'}">
+                        <button type="submit" style="padding:.3rem .7rem;background:${u.banned ? 'rgba(0,200,0,.1)' : 'rgba(255,150,0,.1)'};border:1px solid ${u.banned ? 'rgba(0,200,0,.25)' : 'rgba(255,150,0,.25)'};border-radius:7px;color:${u.banned ? '#4ade80' : '#fb923c'};cursor:pointer;font-size:.78rem;">${u.banned ? 'Unban' : 'Ban'}</button>
+                    </form>
+                    <form method="POST" action="/xon-admin-delete" style="display:inline;" onsubmit="return confirm('Delete @${u.username}?')">
+                        <input type="hidden" name="username" value="${u.username}">
+                        <button type="submit" style="padding:.3rem .7rem;background:rgba(255,60,60,.1);border:1px solid rgba(255,60,60,.25);border-radius:7px;color:#ff6b6b;cursor:pointer;font-size:.78rem;">🗑️</button>
+                    </form>
+                </div></td>
+            </tr>`).join('');
+        res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel</title>
+        <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:#08080a;color:#fff;min-height:100vh}
+        .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:#0d0d10;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:10;}
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;padding:1.5rem 2rem;max-width:1100px;margin:0 auto;}
+        .stat{background:#111114;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.2rem 1.5rem;}
+        .stat-val{font-size:2rem;font-weight:800;}.stat-lbl{font-size:.8rem;color:rgba(255,255,255,.35);margin-top:.2rem;}
+        .tw{max-width:1100px;margin:0 auto 2rem;padding:0 2rem;overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;background:#111114;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07);}
+        th{padding:.7rem .8rem;text-align:left;font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);background:#0d0d10;border-bottom:1px solid rgba(255,255,255,.06);}
+        td{padding:.65rem .8rem;}tr:hover td{background:rgba(255,255,255,.02);}
+        .logout{padding:.35rem 1rem;border:1px solid rgba(255,80,80,.3);border-radius:50px;color:#ff6b6b;text-decoration:none;font-size:.8rem;}</style></head>
+        <body><div class="topbar"><span style="font-weight:700;font-size:1.1rem;">🔐 XonPro Admin</span><a href="/xon-admin-logout" class="logout">⇥ Logout</a></div>
+        <div class="stats">
+            <div class="stat"><div class="stat-val">${users.length}</div><div class="stat-lbl">Total Users</div></div>
+            <div class="stat"><div class="stat-val">${totalViews.toLocaleString()}</div><div class="stat-lbl">Total Views</div></div>
+            <div class="stat"><div class="stat-val">${users.filter(u=>u.banned).length}</div><div class="stat-lbl">Banned</div></div>
+        </div>
+        <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Email</th><th>Views</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></body></html>`);
+    } catch(err) { res.status(500).send('Server error'); }
+});
+
+// Ban / Unban
+app.post('/xon-admin-ban', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
+    await User.updateOne({ username: req.body.username }, { banned: req.body.action === 'ban' });
+    res.redirect('/xon-admin-panel');
+});
+
+// Admin Delete User
+app.post('/xon-admin-delete', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
+    try {
+        const u = await User.findOne({ username: req.body.username });
+        if (u) {
+            const assets = [{ url:u.photo,type:'image'},{url:u.bgMedia,type:u.bgMediaType==='video'?'video':'image'},{url:u.customCursor,type:'image'},{url:u.song,type:'video'}].filter(a=>a.url);
+            for (const a of assets) { try { const p=a.url.split('/'); await cloudinary.uploader.destroy(`${p[p.length-2]}/${p[p.length-1].split('.')[0]}`,{resource_type:a.type}); } catch(e){} }
+            await User.deleteOne({ username: req.body.username });
+        }
+        res.redirect('/xon-admin-panel');
+    } catch(err) { res.status(500).send('Error'); }
+});
+
+// Admin Logout
+app.get('/xon-admin-logout', (req, res) => {
+    if (req.session) req.session[ADMIN_SESS_KEY] = false;
+    res.redirect('/xon-admin-secret');
 });
 
 // ─── MULTER ERROR HANDLER ────────────────────────────────────
