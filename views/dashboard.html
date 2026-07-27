@@ -751,93 +751,255 @@
 
         <!-- ═══ PROFILE B TAB (Premium Only) ═══════════════════ -->
         <div class="tab-section" id="tab-editb">
-            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
-                <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">✨</div>
-                <div>
-                    <h2 style="font-size:1rem;font-weight:700;color:#fff;margin:0;">Profile B</h2>
-                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin:0;">Premium — alternate profile for same URL</p>
-                </div>
-            </div>
-            <form method="POST" action="/{{USERNAME}}/edit-b" enctype="multipart/form-data">
-            <div class="edit-grid">
+            <form action="/{{USERNAME}}/edit-b" method="POST" enctype="multipart/form-data">
+                <div class="edit-grid">
 
-                <!-- Display Name B -->
-                <div class="field-group full-width">
-                    <label class="field-label">Display Name B</label>
-                    <input type="text" name="displayname" class="field-input" placeholder="Name for Profile B" value="{{PB_DISPLAYNAME}}" maxlength="32">
-                </div>
-                <!-- Bio B -->
-                <div class="field-group full-width">
-                    <label class="field-label">Bio B</label>
-                    <textarea name="bio" class="field-input" placeholder="Bio for Profile B" maxlength="150" rows="3" style="resize:vertical;">{{PB_BIO}}</textarea>
-                </div>
-
-                <!-- Social B -->
-                <div class="field-group">
-                    <label class="field-label">Instagram B</label>
-                    <div class="input-icon-wrap"><span class="input-icon">📷</span><input type="text" name="instagram" class="field-input" placeholder="@username" value="{{PB_INSTAGRAM}}"></div>
-                </div>
-                <div class="field-group">
-                    <label class="field-label">Discord B</label>
-                    <div class="input-icon-wrap"><span class="input-icon">💬</span><input type="text" name="discord" class="field-input" placeholder="user#0000" value="{{PB_DISCORD}}"></div>
-                </div>
-
-                <!-- Assets B -->
-                <div class="asset-box">
-                    <div class="asset-label">Photo B</div>
-                    <div class="asset-upload-area" id="photoBArea" onclick="document.getElementById('photo-b-inp').click()">
-                        <div class="asset-icon">👤</div>
-                        <div class="asset-hint">Click to upload photo</div>
-                        <div class="asset-sub">JPG, PNG, GIF</div>
-                    </div>
-                    <input type="file" name="photo" id="photo-b-inp" accept="image/*" style="display:none" onchange="onAssetChange(this,'photo-b-name','photoBArea',null)">
-                    <div class="file-name-show" id="photo-b-name"></div>
-                    {{PB_PHOTO_PREVIEW}}
-                </div>
-
-                <div class="asset-box">
-                    <div class="asset-label">Audio B</div>
-                    <div class="asset-upload-area" id="audioBArea" onclick="document.getElementById('song-b-inp').click()">
-                        <div class="asset-icon">🎵</div>
-                        <div class="asset-hint">Click to upload audio</div>
-                        <div class="asset-sub">MP3 only</div>
-                    </div>
-                    <input type="file" name="song" id="song-b-inp" accept="audio/mpeg,audio/mp3" style="display:none" onchange="onAssetChange(this,'song-b-name','audioBArea',null)">
-                    <div class="file-name-show" id="song-b-name"></div>
-                    {{PB_SONG_PREVIEW}}
-                    <!-- Song ON/OFF toggle -->
-                    <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.9rem;">
-                        <span style="font-size:0.82rem;color:rgba(255,255,255,0.35);font-weight:600;">🎵 Song</span>
-                        <div style="display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:3px;gap:3px;">
-                            <label style="cursor:pointer;margin:0;">
-                                <input type="radio" name="musicEnabled" id="musicYesB" value="on" {{PB_MUSIC_YES_CHECKED}} style="display:none;">
-                                <span id="music-yes-btn-b" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;background:{{PB_MUSIC_YES_BG}};color:{{PB_MUSIC_YES_COLOR}};">ON</span>
-                            </label>
-                            <label style="cursor:pointer;margin:0;">
-                                <input type="radio" name="musicEnabled" id="musicNoB" value="off" {{PB_MUSIC_NO_CHECKED}} style="display:none;">
-                                <span id="music-no-btn-b" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;background:{{PB_MUSIC_NO_BG}};color:{{PB_MUSIC_NO_COLOR}};">OFF</span>
-                            </label>
+                    <!-- Display Info B -->
+                    <div class="edit-card">
+                        <h3>📋 Display Info <span style="font-size:0.72rem;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;padding:0.1rem 0.5rem;border-radius:50px;font-weight:600;">Profile B</span></h3>
+                        <div class="form-group">
+                            <label>Display Name</label>
+                            <input class="form-input" type="text" name="displayname" value="{{PB_DISPLAYNAME}}" placeholder="Profile B naam" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Bio <span style="opacity:0.4;font-size:0.75rem">(optional · max 150)</span></label>
+                            <textarea class="form-input" name="bio" rows="3" placeholder="Profile B bio..." maxlength="150" style="resize:vertical;">{{PB_BIO}}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram</label>
+                            <input class="form-input" type="text" name="instagram" placeholder="@username" value="{{PB_INSTAGRAM}}">
+                        </div>
+                        <div class="form-group">
+                            <label>Discord</label>
+                            <input class="form-input" type="text" name="discord" placeholder="user#0000" value="{{PB_DISCORD}}">
+                        </div>
+                        <div class="form-group">
+                            <label>Youtube</label>
+                            <input class="form-input" type="text" name="youtube" placeholder="channel URL" value="{{PB_YOUTUBE}}">
                         </div>
                     </div>
-                </div>
 
-                <div class="asset-box">
-                    <div class="asset-label">Background B</div>
-                    <div class="asset-upload-area" id="bgBArea" onclick="document.getElementById('bg-b-inp').click()">
-                        <div class="asset-icon" id="bgB-icon">🖼️</div>
-                        <div class="asset-hint">Image or Video</div>
-                        <div class="asset-sub">JPG, PNG, MP4</div>
-                    </div>
-                    <input type="file" name="bgMedia" id="bg-b-inp" accept="image/*,video/mp4" style="display:none" onchange="onAssetChange(this,'bg-b-name','bgBArea','bgB-icon')">
-                    <div class="file-name-show" id="bg-b-name"></div>
-                    {{PB_BG_PREVIEW}}
-                </div>
+                    <!-- Assets B -->
+                    <div class="edit-card full">
+                        <h3>🗂️ Assets Uploader <span style="font-size:0.72rem;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;padding:0.1rem 0.5rem;border-radius:50px;font-weight:600;">Profile B</span></h3>
+                        <div class="assets-grid">
 
-                <div class="field-group full-width" style="margin-top:0.5rem;">
-                    <button type="submit" class="save-btn" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);box-shadow:0 4px 20px rgba(124,58,237,0.3);">💾 Save Profile B</button>
-                </div>
+                            <!-- Background B -->
+                            <div class="asset-box">
+                                <div class="asset-label">Background</div>
+                                <div class="asset-upload-area" id="bgArea-b" onclick="document.getElementById('bgMedia-b-inp').click()">
+                                    <div class="asset-icon" id="bgIcon-b">🖼️</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-sub">Image or Video (max 20MB)</div>
+                                </div>
+                                <input type="file" name="bgMedia" id="bgMedia-b-inp"
+                                    accept="image/*,video/mp4,video/webm"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'bgMedia-b-name','bgArea-b','bgIcon-b')">
+                                <div class="file-name-show" id="bgMedia-b-name"></div>
+                                {{PB_BG_PREVIEW}}
+                            </div>
 
-            </div><!-- /edit-grid -->
+                            <!-- Audio B -->
+                            <div class="asset-box">
+                                <div class="asset-label">Audio</div>
+                                <div class="asset-upload-area" id="audioArea-b" onclick="document.getElementById('song-b-inp').click()">
+                                    <div class="asset-icon">🎵</div>
+                                    <div class="asset-hint">Click to upload audio</div>
+                                    <div class="asset-sub">MP3 only</div>
+                                </div>
+                                <input type="file" name="song" id="song-b-inp"
+                                    accept="audio/mpeg,audio/mp3"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'song-b-name','audioArea-b',null)">
+                                <div class="file-name-show" id="song-b-name"></div>
+                                {{PB_SONG_PREVIEW}}
+                                <!-- Song ON/OFF toggle -->
+                                <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.9rem;">
+                                    <span style="font-size:0.82rem;color:rgba(255,255,255,0.35);font-weight:600;">🎵 Song</span>
+                                    <div style="display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:3px;gap:3px;">
+                                        <label style="cursor:pointer;margin:0;">
+                                            <input type="radio" name="musicEnabled" id="musicYes-b" value="on" {{PB_MUSIC_YES_CHECKED}} style="display:none;">
+                                            <span id="music-yes-btn-b" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;background:{{PB_MUSIC_YES_BG}};color:{{PB_MUSIC_YES_COLOR}};">ON</span>
+                                        </label>
+                                        <label style="cursor:pointer;margin:0;">
+                                            <input type="radio" name="musicEnabled" id="musicNo-b" value="off" {{PB_MUSIC_NO_CHECKED}} style="display:none;">
+                                            <span id="music-no-btn-b" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;background:{{PB_MUSIC_NO_BG}};color:{{PB_MUSIC_NO_COLOR}};">OFF</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Profile Avatar B -->
+                            <div class="asset-box">
+                                <div class="asset-label">Profile Avatar</div>
+                                <div class="asset-upload-area" id="photoArea-b" onclick="document.getElementById('photo-b-inp').click()">
+                                    <div class="asset-icon">👤</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-sub">JPG, PNG, GIF</div>
+                                </div>
+                                <input type="file" name="photo" id="photo-b-inp"
+                                    accept="image/*"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'photo-b-name','photoArea-b',null)">
+                                <div class="file-name-show" id="photo-b-name"></div>
+                                {{PB_PHOTO_PREVIEW}}
+                            </div>
+
+                            <!-- Custom Cursor B -->
+                            <div class="asset-box">
+                                <div class="asset-label">Custom Cursor</div>
+                                <div class="asset-upload-area" id="cursorArea-b" onclick="document.getElementById('customCursor-b-inp').click()">
+                                    <div class="asset-icon">🖱️</div>
+                                    <div class="asset-hint">Click to upload a file</div>
+                                    <div class="asset-sub">PNG recommended</div>
+                                </div>
+                                <input type="file" name="customCursor" id="customCursor-b-inp"
+                                    accept="image/*"
+                                    style="display:none"
+                                    onchange="onAssetChange(this,'cursor-b-name','cursorArea-b',null)">
+                                <div class="file-name-show" id="cursor-b-name"></div>
+                                {{PB_CURSOR_PREVIEW}}
+                            </div>
+
+                        </div><!-- /assets-grid -->
+
+                        <!-- Name Style B -->
+                        <div class="style-section">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">✍️</div>
+                                <div>
+                                    <div class="style-section-title">Name Style</div>
+                                    <div class="style-section-sub">Font, color &amp; animation for Profile B name</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="nameFont"      id="nameFontInput-b"  value="{{PB_NAME_FONT}}">
+                            <input type="hidden" name="nameAnimation" id="nameAnimInput-b"  value="{{PB_NAME_ANIMATION}}">
+                            <input type="hidden" name="nameColor"     id="nameColorInput-b" value="{{PB_NAME_COLOR}}">
+                            <div class="ns-group">
+                                <div class="ns-label">🔤 Font Family</div>
+                                <div class="ns-grid" id="fontGrid-b"></div>
+                            </div>
+                            <div class="ns-group">
+                                <div class="ns-label">🎨 Name Color</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+                                    <div id="colorSwatches-b" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+                                    <label style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0.8rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:50px;cursor:pointer;font-size:0.76rem;color:rgba(255,255,255,0.4);">
+                                        <span>Custom</span>
+                                        <input type="color" id="colorCustom-b" value="{{PB_NAME_COLOR}}"
+                                            style="width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none;">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ns-group">
+                                <div class="ns-label">✨ Animation</div>
+                                <div class="ns-grid" id="animGrid-b"></div>
+                            </div>
+                            <div class="ns-preview-box">
+                                <div id="namePreview-b" style="font-size:2rem;font-weight:700;color:#fff;transition:all 0.3s;margin-top:0.4rem;">{{PB_DISPLAYNAME}}</div>
+                            </div>
+                        </div>
+
+                        <!-- Background Effects B -->
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">🌌</div>
+                                <div>
+                                    <div class="style-section-title">Background Effects</div>
+                                    <div class="style-section-sub">Animated particle effects on Profile B</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="bgEffect" id="bgEffectInput-b" value="{{PB_BG_EFFECT}}">
+                            <div class="ns-group">
+                                <div class="ns-label">Select Effect</div>
+                                <div class="ns-grid" id="effectGrid-b"></div>
+                            </div>
+                            <div class="effect-preview-wrap">
+                                <div class="effect-preview-label">LIVE PREVIEW</div>
+                                <canvas id="effectPreviewCanvas-b" width="600" height="100"
+                                    style="width:100%;height:100px;display:block;background:#060608;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Profile Theme B -->
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">🎨</div>
+                                <div>
+                                    <div class="style-section-title">Profile Theme</div>
+                                    <div class="style-section-sub">Choose vibe for Profile B page</div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="profileTheme" id="profileThemeInput-b" value="{{PB_PROFILE_THEME}}">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:0.7rem;">
+                                <div class="theme-card-b" data-theme="default" onclick="pickThemeB(this)" style="--tc1:#8a2be2;--tc2:#ff007f;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0d080e,#150d20);border:1px solid rgba(138,43,226,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8a2be2,#ff007f);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(138,43,226,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Default</div>
+                                </div>
+                                <div class="theme-card-b" data-theme="neon" onclick="pickThemeB(this)" style="--tc1:#00ff41;--tc2:#39ff14;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#020d02,#041504);border:1px solid rgba(0,255,65,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#00ff41,#39ff14);margin-bottom:0.4rem;box-shadow:0 0 12px rgba(0,255,65,0.6);"></div>
+                                        <div style="height:5px;width:60%;background:rgba(0,255,65,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(0,255,65,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Neon</div>
+                                </div>
+                                <div class="theme-card-b" data-theme="retro" onclick="pickThemeB(this)" style="--tc1:#f59e0b;--tc2:#ef4444;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0d0800,#1a0f00);border:1px solid rgba(245,158,11,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(245,158,11,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(245,158,11,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Retro</div>
+                                </div>
+                                <div class="theme-card-b" data-theme="minimal" onclick="pickThemeB(this)" style="--tc1:#e5e5e5;--tc2:#a3a3a3;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#0a0a0a,#141414);border:1px solid rgba(255,255,255,0.1);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e5e5e5,#a3a3a3);margin-bottom:0.4rem;"></div>
+                                        <div style="height:5px;width:60%;background:rgba(255,255,255,0.4);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Minimal</div>
+                                </div>
+                                <div class="theme-card-b" data-theme="ocean" onclick="pickThemeB(this)" style="--tc1:#0ea5e9;--tc2:#06b6d4;">
+                                    <div class="theme-preview" style="background:linear-gradient(135deg,#00060f,#001824);border:1px solid rgba(14,165,233,0.3);">
+                                        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#06b6d4);margin-bottom:0.4rem;box-shadow:0 0 12px rgba(14,165,233,0.5);"></div>
+                                        <div style="height:5px;width:60%;background:rgba(14,165,233,0.5);border-radius:4px;margin-bottom:0.25rem;"></div>
+                                        <div style="height:3px;width:40%;background:rgba(14,165,233,0.2);border-radius:4px;"></div>
+                                    </div>
+                                    <div class="theme-label">Ocean</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview B -->
+                        <div class="style-section" style="margin-top:1.2rem;">
+                            <div class="style-section-header">
+                                <div class="style-section-icon">👁️</div>
+                                <div>
+                                    <div class="style-section-title">Live Preview</div>
+                                    <div class="style-section-sub">Profile B real-time preview</div>
+                                </div>
+                            </div>
+                            <div id="profilePreviewCard-b" style="background:#0a0a10;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2rem;display:flex;flex-direction:column;align-items:center;gap:0.8rem;text-align:center;min-height:160px;position:relative;overflow:hidden;">
+                                <div id="previewBlobBg-b" style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(139,92,246,0.18),transparent);pointer-events:none;transition:background 0.4s;"></div>
+                                <div id="previewAvatar-b" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,92,246,0.4);flex-shrink:0;">👤</div>
+                                <div id="previewName-b" style="font-size:1.5rem;font-weight:800;color:#fff;transition:all 0.3s;position:relative;">{{PB_DISPLAYNAME}}</div>
+                                <div id="previewBio-b" style="font-size:0.82rem;color:rgba(255,255,255,0.4);max-width:260px;line-height:1.5;position:relative;"></div>
+                                <div style="position:relative;font-size:0.7rem;color:rgba(255,255,255,0.2);margin-top:0.3rem;">xonpro.store/@{{USERNAME_LINK}} ✨ Profile B</div>
+                            </div>
+                        </div>
+
+                        <div class="save-row">
+                            <button type="button" class="btn-cancel-edit" onclick="showTab('overview', document.querySelector('.sidebar-item'))">Cancel</button>
+                            <button type="submit" class="btn-save" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);box-shadow:0 4px 20px rgba(124,58,237,0.35);">💾 Save Profile B</button>
+                        </div>
+                    </div><!-- /edit-card full -->
+
+                </div><!-- /edit-grid -->
             </form>
         </div><!-- /tab-editb -->
 

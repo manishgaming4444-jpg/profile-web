@@ -329,7 +329,16 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{PB_MUSIC_YES_BG\}\}/g,        (existing && existing.profileB && existing.profileB.musicEnabled) ? 'rgba(34,197,94,0.9)' : 'transparent')
             .replace(/\{\{PB_MUSIC_YES_COLOR\}\}/g,     (existing && existing.profileB && existing.profileB.musicEnabled) ? '#fff' : 'rgba(255,255,255,0.3)')
             .replace(/\{\{PB_MUSIC_NO_BG\}\}/g,         (existing && existing.profileB && existing.profileB.musicEnabled) ? 'transparent' : 'rgba(255,255,255,0.12)')
-            .replace(/\{\{PB_MUSIC_NO_COLOR\}\}/g,      (existing && existing.profileB && existing.profileB.musicEnabled) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.85)');
+            .replace(/\{\{PB_MUSIC_NO_COLOR\}\}/g,      (existing && existing.profileB && existing.profileB.musicEnabled) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.85)')
+            .replace(/\{\{PB_YOUTUBE\}\}/g,             (existing && existing.profileB && existing.profileB.youtube)   || '')
+            .replace(/\{\{PB_CURSOR_PREVIEW\}\}/g,
+                (existing && existing.profileB && existing.profileB.customCursor)
+                    ? `<div class="current-media"><span>🖱️ Profile B cursor set</span></div>` : '')
+            .replace(/\{\{PB_NAME_FONT\}\}/g,       (existing && existing.profileB && existing.profileB.nameFont)      || 'Outfit')
+            .replace(/\{\{PB_NAME_ANIMATION\}\}/g,  (existing && existing.profileB && existing.profileB.nameAnimation) || 'none')
+            .replace(/\{\{PB_NAME_COLOR\}\}/g,      (existing && existing.profileB && existing.profileB.nameColor)     || '#ffffff')
+            .replace(/\{\{PB_BG_EFFECT\}\}/g,       (existing && existing.profileB && existing.profileB.bgEffect)      || 'none')
+            .replace(/\{\{PB_PROFILE_THEME\}\}/g,   (existing && existing.profileB && existing.profileB.profileTheme)  || 'default');
 
 
         res.send(html);
