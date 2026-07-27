@@ -682,7 +682,51 @@ app.get('/:username', async (req, res) => {
             .replace(/\{\{NAME_COLOR\}\}/g,          user.nameColor     || '#ffffff')
             .replace(/\{\{BG_EFFECT\}\}/g,           user.bgEffect      || 'none')
             .replace(/\{\{PROFILE_THEME\}\}/g,       user.profileTheme  || 'default')
-            .replace(/\{\{SONG_EXISTS\}\}/g,        user.song ? 'true' : 'false');
+            .replace(/\{\{SONG_EXISTS\}\}/g,        user.song ? 'true' : 'false')
+            .replace(/\{\{IS_PREMIUM\}\}/g,         user.isPremium ? 'true' : 'false')
+            .replace(/\{\{MEDIA_SESSION_SCRIPT\}\}/g, (user.isPremium && user.song) ? `
+<script>
+// ── Premium: Media Session API ──────────────────────────────────
+(function() {
+  if (!('mediaSession' in navigator)) return;
+  const audio = document.getElementById('bg-music');
+  if (!audio) return;
+
+  // Set media metadata (shows on lock screen + notification)
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  ${JSON.stringify(user.displayname || user.username)},
+    artist: ${JSON.stringify('@' + user.username)},
+    album:  'xonpro.store',
+    artwork: [
+      { src: ${JSON.stringify(photoUrl)}, sizes: '512x512', type: 'image/png' }
+    ]
+  });
+
+  // Action handlers — lock screen controls
+  navigator.mediaSession.setActionHandler('play',  () => { audio.play();  navigator.mediaSession.playbackState = 'playing'; });
+  navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); navigator.mediaSession.playbackState = 'paused'; });
+  navigator.mediaSession.setActionHandler('seekbackward', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+  navigator.mediaSession.setActionHandler('seekforward',  () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
+
+  // Sync playback state
+  audio.addEventListener('play',  () => { navigator.mediaSession.playbackState = 'playing'; });
+  audio.addEventListener('pause', () => { navigator.mediaSession.playbackState = 'paused'; });
+
+  // Keep alive: prevent browser from suspending audio on mobile
+  audio.addEventListener('ended', () => {
+    // Loop song (premium keeps playing)
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  });
+
+  // Visibility change — re-assert playback when page comes back to foreground
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !audio.paused) {
+      navigator.mediaSession.playbackState = 'playing';
+    }
+  });
+})();
+</script>` : '');
 
 
 
