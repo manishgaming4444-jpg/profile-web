@@ -194,7 +194,23 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
                     <h2 class="hero-name">${existing.displayname}</h2>
                     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                         <p class="hero-handle" style="margin:0;">@${existing.username}</p>
-                        ${existing.isPremium ? `<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.15rem 0.6rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.3);border-radius:50px;font-size:0.68rem;font-weight:700;color:#fbbf24;">⭐ PREMIUM</span>` : ''}
+                        ${existing.isPremium ? `<span style="
+                            display:inline-flex;align-items:center;gap:0.3rem;
+                            padding:0.22rem 0.75rem;
+                            background:linear-gradient(135deg,#f59e0b,#fbbf24,#f59e0b);
+                            background-size:200% auto;
+                            border-radius:50px;
+                            font-size:0.7rem;font-weight:800;
+                            color:#1a0a00;
+                            letter-spacing:0.04em;
+                            box-shadow:0 0 12px rgba(251,191,36,0.45),0 2px 8px rgba(251,191,36,0.2);
+                            animation:premiumShine 2.5s linear infinite;
+                            text-shadow:0 1px 2px rgba(255,255,255,0.3);
+                            position:relative;overflow:hidden;
+                        ">👑 PREMIUM</span>
+                        <style>
+                        @keyframes premiumShine{0%{background-position:0% center}100%{background-position:200% center}}
+                        </style>` : ''}
                     </div>
                     <div class="hero-btns">
                         <button onclick="showTab('edit', null)" class="btn-white">✏️ Edit Profile</button>
