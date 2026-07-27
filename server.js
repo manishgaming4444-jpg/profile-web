@@ -50,6 +50,7 @@ const userSchema = new mongoose.Schema({
     bgEffect:     { type: String, default: 'none' },
     profileTheme: { type: String, default: 'default' },
     banned:       { type: Boolean, default: false },
+    isPremium:    { type: Boolean, default: false },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
 });
@@ -192,8 +193,9 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
                 <div class="hero-info">
                     <h2 class="hero-name">${existing.displayname}</h2>
                     <p class="hero-handle">@${existing.username}</p>
+                    ${existing.isPremium ? `<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.75rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.3);border-radius:50px;font-size:0.72rem;font-weight:700;color:#fbbf24;margin-top:0.3rem;">⭐ PREMIUM</span>` : ''}
                     <div class="hero-btns">
-                        <button onclick="showTab('edit', document.querySelectorAll('.sidebar-item')[1])" class="btn-white">✏️ Edit Profile</button>
+                        <button onclick="showTab('edit', null)" class="btn-white">✏️ Edit Profile</button>
                         <a href="/${existing.username}" target="_blank" class="btn-ghost">🔗 View Profile</a>
                     </div>
                 </div>
@@ -467,7 +469,7 @@ app.post('/xon-admin-secret', express.urlencoded({ extended: false }), (req, res
 
 app.get('/xon-admin-panel', isAdmin, async (req, res) => {
     try {
-        const users = await User.find({}, 'username displayname photo views banned createdAt googleEmail').sort({ createdAt: -1 }).lean();
+        const users = await User.find({}, 'username displayname photo views banned isPremium createdAt googleEmail').sort({ createdAt: -1 }).lean();
         const totalViews = users.reduce((s, u) => s + (u.views || 0), 0);
         const rows = users.map((u, i) => `
             <tr>
@@ -477,7 +479,14 @@ app.get('/xon-admin-panel', isAdmin, async (req, res) => {
                     <div><div style="font-weight:600;font-size:.88rem;">@${u.username}</div><div style="font-size:.72rem;color:rgba(255,255,255,.35);">${u.displayname}</div></div></div></td>
                 <td style="font-size:.8rem;color:rgba(255,255,255,.4);">${u.googleEmail || '&#x2014;'}</td>
                 <td style="text-align:center;">${(u.views || 0).toLocaleString()}</td>
-                <td style="text-align:center;"><span style="padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:${u.banned ? 'rgba(255,60,60,.15)' : 'rgba(0,200,0,.1)'};color:${u.banned ? '#ff6b6b' : '#4ade80'};">${u.banned ? '&#x1F6AB; Banned' : '&#x2705; Active'}</span></td>
+                <td style="text-align:center;"><span style="padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;background:${u.banned ? 'rgba(255,60,60,.15)' : 'rgba(0,200,0,.1)'};color:${u.banned ? '#ff6b6b' : '#4ade80'};">  ${u.banned ? '&#x1F6AB; Banned' : '&#x2705; Active'}</span></td>
+                <td style="text-align:center;">
+                    <form method="POST" action="/xon-admin-premium" style="display:inline;">
+                        <input type="hidden" name="username" value="${u.username}">
+                        <input type="hidden" name="action" value="${u.isPremium ? 'remove' : 'add'}">
+                        <button type="submit" style="padding:.3rem .8rem;background:${u.isPremium ? 'rgba(250,204,21,.15)' : 'rgba(255,255,255,.06)'};border:1px solid ${u.isPremium ? 'rgba(250,204,21,.4)' : 'rgba(255,255,255,.1)'};border-radius:20px;color:${u.isPremium ? '#fbbf24' : 'rgba(255,255,255,.45)'};cursor:pointer;font-size:.75rem;font-weight:700;">${u.isPremium ? '&#x2B50; Premium' : '&#x2606; Normal'}</button>
+                    </form>
+                </td>
                 <td><div style="display:flex;gap:.4rem;">
                     <a href="/${u.username}" target="_blank" style="padding:.3rem .7rem;background:rgba(255,255,255,.06);border-radius:7px;color:#fff;text-decoration:none;font-size:.78rem;">&#x1F517;</a>
                     <form method="POST" action="/xon-admin-ban" style="display:inline;">
@@ -493,7 +502,7 @@ app.get('/xon-admin-panel', isAdmin, async (req, res) => {
         res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel</title>
         <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:#08080a;color:#fff;min-height:100vh}
         .topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:#0d0d10;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:10;}
-        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;padding:1.5rem 2rem;max-width:1100px;margin:0 auto;}
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.5rem 2rem;max-width:1200px;margin:0 auto;}
         .stat{background:#111114;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.2rem 1.5rem;}
         .stat-val{font-size:2rem;font-weight:800;}.stat-lbl{font-size:.8rem;color:rgba(255,255,255,.35);margin-top:.2rem;}
         .tw{max-width:1100px;margin:0 auto 2rem;padding:0 2rem;overflow-x:auto;}
@@ -505,15 +514,22 @@ app.get('/xon-admin-panel', isAdmin, async (req, res) => {
         <div class="stats">
             <div class="stat"><div class="stat-val">${users.length}</div><div class="stat-lbl">Total Users</div></div>
             <div class="stat"><div class="stat-val">${totalViews.toLocaleString()}</div><div class="stat-lbl">Total Views</div></div>
+            <div class="stat"><div class="stat-val">${users.filter(u=>u.isPremium).length}</div><div class="stat-lbl" style="color:#fbbf24;">&#x2B50; Premium</div></div>
             <div class="stat"><div class="stat-val">${users.filter(u=>u.banned).length}</div><div class="stat-lbl">Banned</div></div>
         </div>
-        <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Email</th><th>Views</th><th>Status</th><th>Actions</th></tr></thead>
+        <div class="tw"><table><thead><tr><th>#</th><th>User</th><th>Email</th><th>Views</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead>
         <tbody>${rows}</tbody></table></div></body></html>`);
     } catch(err) { res.status(500).send('Server error'); }
 });
 
 app.post('/xon-admin-ban', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
     await User.updateOne({ username: req.body.username }, { banned: req.body.action === 'ban' });
+    res.redirect('/xon-admin-panel');
+});
+
+// ⭐ Premium toggle
+app.post('/xon-admin-premium', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
+    await User.updateOne({ username: req.body.username }, { isPremium: req.body.action === 'add' });
     res.redirect('/xon-admin-panel');
 });
 
@@ -706,24 +722,6 @@ app.delete('/account/delete', async (req, res) => {
 });
 
 
-// Ban / Unban
-app.post('/xon-admin-ban', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
-    await User.updateOne({ username: req.body.username }, { banned: req.body.action === 'ban' });
-    res.redirect('/xon-admin-panel');
-});
-
-// Admin Delete User
-app.post('/xon-admin-delete', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
-    try {
-        const u = await User.findOne({ username: req.body.username });
-        if (u) {
-            const assets = [{ url:u.photo,type:'image'},{url:u.bgMedia,type:u.bgMediaType==='video'?'video':'image'},{url:u.customCursor,type:'image'},{url:u.song,type:'video'}].filter(a=>a.url);
-            for (const a of assets) { try { const p=a.url.split('/'); await cloudinary.uploader.destroy(`${p[p.length-2]}/${p[p.length-1].split('.')[0]}`,{resource_type:a.type}); } catch(e){} }
-            await User.deleteOne({ username: req.body.username });
-        }
-        res.redirect('/xon-admin-panel');
-    } catch(err) { res.status(500).send('Error'); }
-});
 
 // Admin Logout
 app.get('/xon-admin-logout', (req, res) => {
