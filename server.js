@@ -51,26 +51,6 @@ const userSchema = new mongoose.Schema({
     profileTheme: { type: String, default: 'default' },
     banned:       { type: Boolean, default: false },
     isPremium:    { type: Boolean, default: false },
-    activeProfile:{ type: String,  default: 'A' },
-    profileB: {
-        displayname:  { type: String, default: '' },
-        bio:          { type: String, default: '' },
-        instagram:    { type: String, default: '' },
-        discord:      { type: String, default: '' },
-        youtube:      { type: String, default: '' },
-        photo:        { type: String, default: '' },
-        song:         { type: String, default: '' },
-        bgMedia:      { type: String, default: '' },
-        bgMediaType:  { type: String, default: '' },
-        customCursor: { type: String, default: '' },
-        musicEnabled: { type: Boolean, default: false },
-        nameFont:     { type: String, default: 'Outfit' },
-        nameAnimation:{ type: String, default: 'none' },
-        nameColor:    { type: String, default: '#ffffff' },
-        bgEffect:     { type: String, default: 'none' },
-        profileTheme: { type: String, default: 'default' },
-        links:        [{ platform:String, label:String, url:String, color:String, tc:String, clicks:{type:Number,default:0} }]
-    },
     views:        { type: Number, default: 0 },
     createdAt:    { type: Date, default: Date.now }
 });
@@ -232,18 +212,8 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
                         @keyframes premiumShine{0%{background-position:0% center}100%{background-position:200% center}}
                         </style>` : ''}
                     </div>
-                    ${existing.isPremium ? `
-                    <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;flex-wrap:wrap;">
-                        <span id="active-profile-badge" style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.18rem 0.65rem;background:${existing.activeProfile==='B'?'rgba(139,92,246,0.2)':'rgba(34,197,94,0.15)'};border:1px solid ${existing.activeProfile==='B'?'rgba(139,92,246,0.4)':'rgba(34,197,94,0.3)'};border-radius:50px;font-size:0.7rem;font-weight:700;color:${existing.activeProfile==='B'?'#a78bfa':'#4ade80'};">
-                            🔴 Live: Profile ${existing.activeProfile}
-                        </span>
-                        <button id="switch-profile-btn" onclick="switchProfile()" style="padding:0.22rem 0.7rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:50px;color:rgba(255,255,255,0.7);font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
-                            ⇄ Switch to ${existing.activeProfile==='A'?'B':'A'}
-                        </button>
-                    </div>` : ''}
                     <div class="hero-btns">
-                        <button onclick="showTab('edit', null)" class="btn-white">✏️ Edit Profile A</button>
-                        ${existing.isPremium ? `<button onclick="showTab('editb', null)" class="btn-ghost" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;">✏️ Edit Profile B</button>` : ''}
+                        <button onclick="showTab('edit', null)" class="btn-white">✏️ Edit Profile</button>
                         <a href="/${existing.username}" target="_blank" class="btn-ghost">🔗 View Profile</a>
                     </div>
                 </div>
@@ -305,40 +275,7 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{CURRENT_SONG_PREVIEW\}\}/g,   currentSongPreview)
             .replace(/\{\{CURRENT_BG_PREVIEW\}\}/g,     currentBgPreview)
             .replace(/\{\{CURRENT_CURSOR_PREVIEW\}\}/g, currentCursorPreview)
-            .replace(/\{\{CURRENT_LINKS_JSON\}\}/g,     currentLinksJson)
-            // ── Profile B variables ──────────────────────────────
-            .replace(/\{\{USERNAME\}\}/g,               existing ? existing.username : '')
-            .replace(/\{\{PB_DISPLAYNAME\}\}/g,         (existing && existing.profileB && existing.profileB.displayname) || '')
-            .replace(/\{\{PB_BIO\}\}/g,                 (existing && existing.profileB && existing.profileB.bio)         || '')
-            .replace(/\{\{PB_INSTAGRAM\}\}/g,           (existing && existing.profileB && existing.profileB.instagram)   || '')
-            .replace(/\{\{PB_DISCORD\}\}/g,             (existing && existing.profileB && existing.profileB.discord)     || '')
-            .replace(/\{\{PB_PHOTO_PREVIEW\}\}/g,
-                (existing && existing.profileB && existing.profileB.photo)
-                    ? `<div class="current-media"><img src="${existing.profileB.photo}" alt="Profile B photo"><span>Profile B photo</span></div>`
-                    : '')
-            .replace(/\{\{PB_SONG_PREVIEW\}\}/g,
-                (existing && existing.profileB && existing.profileB.song)
-                    ? `<div class="current-media">🎵 <span>Profile B song uploaded</span></div>`
-                    : '')
-            .replace(/\{\{PB_BG_PREVIEW\}\}/g,
-                (existing && existing.profileB && existing.profileB.bgMedia)
-                    ? `<div class="current-media"><span>🖼️ Profile B background set</span></div>`
-                    : '')
-            .replace(/\{\{PB_MUSIC_YES_CHECKED\}\}/g,   (existing && existing.profileB && existing.profileB.musicEnabled) ? 'checked' : '')
-            .replace(/\{\{PB_MUSIC_NO_CHECKED\}\}/g,    (existing && existing.profileB && existing.profileB.musicEnabled) ? '' : 'checked')
-            .replace(/\{\{PB_MUSIC_YES_BG\}\}/g,        (existing && existing.profileB && existing.profileB.musicEnabled) ? 'rgba(34,197,94,0.9)' : 'transparent')
-            .replace(/\{\{PB_MUSIC_YES_COLOR\}\}/g,     (existing && existing.profileB && existing.profileB.musicEnabled) ? '#fff' : 'rgba(255,255,255,0.3)')
-            .replace(/\{\{PB_MUSIC_NO_BG\}\}/g,         (existing && existing.profileB && existing.profileB.musicEnabled) ? 'transparent' : 'rgba(255,255,255,0.12)')
-            .replace(/\{\{PB_MUSIC_NO_COLOR\}\}/g,      (existing && existing.profileB && existing.profileB.musicEnabled) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.85)')
-            .replace(/\{\{PB_YOUTUBE\}\}/g,             (existing && existing.profileB && existing.profileB.youtube)   || '')
-            .replace(/\{\{PB_CURSOR_PREVIEW\}\}/g,
-                (existing && existing.profileB && existing.profileB.customCursor)
-                    ? `<div class="current-media"><span>🖱️ Profile B cursor set</span></div>` : '')
-            .replace(/\{\{PB_NAME_FONT\}\}/g,       (existing && existing.profileB && existing.profileB.nameFont)      || 'Outfit')
-            .replace(/\{\{PB_NAME_ANIMATION\}\}/g,  (existing && existing.profileB && existing.profileB.nameAnimation) || 'none')
-            .replace(/\{\{PB_NAME_COLOR\}\}/g,      (existing && existing.profileB && existing.profileB.nameColor)     || '#ffffff')
-            .replace(/\{\{PB_BG_EFFECT\}\}/g,       (existing && existing.profileB && existing.profileB.bgEffect)      || 'none')
-            .replace(/\{\{PB_PROFILE_THEME\}\}/g,   (existing && existing.profileB && existing.profileB.profileTheme)  || 'default');
+            .replace(/\{\{CURRENT_LINKS_JSON\}\}/g,     currentLinksJson);
 
 
         res.send(html);
@@ -455,83 +392,6 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
         console.error(err);
         res.status(500).send('Something went wrong.');
     }
-});
-
-// ─── SWITCH ACTIVE PROFILE (Premium only) ────────────────────
-app.post('/switch-profile', isLoggedIn, async (req, res) => {
-    try {
-        const user = await User.findOne({ googleId: req.user.googleId });
-        if (!user || !user.isPremium) return res.status(403).json({ ok: false, error: 'Premium only' });
-        user.activeProfile = (user.activeProfile === 'B') ? 'A' : 'B';
-        await user.save();
-        res.json({ ok: true, active: user.activeProfile });
-    } catch (err) { res.status(500).json({ ok: false }); }
-});
-
-// ─── EDIT PROFILE B (Premium only) ───────────────────────────
-app.post('/:username/edit-b', isLoggedIn, upload.fields([
-    { name: 'photo',        maxCount: 1 },
-    { name: 'song',         maxCount: 1 },
-    { name: 'bgMedia',      maxCount: 1 },
-    { name: 'customCursor', maxCount: 1 }
-]), async (req, res) => {
-    try {
-        const username = req.params.username.toLowerCase();
-        const user = await User.findOne({ username });
-        if (!user)                               return res.status(404).send('Not found.');
-        if (user.googleId !== req.user.googleId) return res.status(403).send('Access denied.');
-        if (!user.isPremium)                     return res.status(403).send('Premium only.');
-
-        if (!user.profileB) user.profileB = {};
-        const pb = user.profileB;
-        const { displayname, bio, musicEnabled, nameFont, nameAnimation } = req.body;
-        if (displayname) pb.displayname = displayname;
-        if (bio !== undefined) pb.bio = bio.slice(0, 150);
-        if ('musicEnabled' in req.body) pb.musicEnabled = (musicEnabled === 'on');
-        if (nameFont)      pb.nameFont      = nameFont;
-        if (nameAnimation) pb.nameAnimation = nameAnimation;
-        const hexColorRe = /^#[0-9A-Fa-f]{6}$/;
-        if (req.body.nameColor && hexColorRe.test(req.body.nameColor)) pb.nameColor = req.body.nameColor;
-        if (req.body.bgEffect !== undefined) pb.bgEffect = req.body.bgEffect || 'none';
-        const validThemes = ['default','neon','retro','minimal','ocean'];
-        if (req.body.profileTheme && validThemes.includes(req.body.profileTheme)) pb.profileTheme = req.body.profileTheme;
-        if (req.body.instagram !== undefined) pb.instagram = req.body.instagram || '';
-        if (req.body.discord   !== undefined) pb.discord   = req.body.discord   || '';
-        if (req.body.youtube   !== undefined) pb.youtube   = req.body.youtube   || '';
-
-        if (req.files['photo'])        pb.photo        = req.files['photo'][0].path;
-        if (req.files['song'])         pb.song         = req.files['song'][0].path;
-        if (req.files['bgMedia']) {
-            pb.bgMedia     = req.files['bgMedia'][0].path;
-            pb.bgMediaType = req.files['bgMedia'][0].mimetype.startsWith('video') ? 'video' : 'image';
-        }
-        if (req.files['customCursor']) pb.customCursor = req.files['customCursor'][0].path;
-
-        user.markModified('profileB');
-        await user.save();
-        res.redirect('/dashboard?saved=1&tab=b');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Something went wrong.');
-    }
-});
-
-// ─── LINKS UPDATE FOR PROFILE B ───────────────────────────────
-app.post('/:username/links-b', isLoggedIn, async (req, res) => {
-    try {
-        const username = req.params.username.toLowerCase();
-        const user = await User.findOne({ username });
-        if (!user || user.googleId !== req.user.googleId) return res.status(403).json({ error: 'denied' });
-        if (!user.isPremium) return res.status(403).json({ error: 'Premium only' });
-        if (!user.profileB) user.profileB = {};
-        user.profileB.links = (req.body.links || []).slice(0, 20).filter(link => {
-            try { return link.url && /^https?:\/\//.test(link.url) && new URL(link.url); }
-            catch { return false; }
-        });
-        user.markModified('profileB');
-        await user.save();
-        res.json({ ok: true });
-    } catch (err) { res.status(500).json({ error: 'server error' }); }
 });
 
 // ─── LINKS UPDATE (JSON) ──────────────────────────────────────
@@ -743,16 +603,12 @@ app.get('/:username', async (req, res) => {
 
         let template = fs.readFileSync(path.join(__dirname, 'template', 'profile.html'), 'utf-8');
 
-        // ── Use Profile B data if active ──────────────────────
-        const useB = (user.activeProfile === 'B') && user.profileB && user.profileB.photo;
-        const pd   = useB ? user.profileB : user; // profile data source
-
-        const photoUrl      = pd.photo || '/public/default-avatar.png';
-        const songUrl       = pd.song  || '';
+        const photoUrl      = user.photo || '/public/default-avatar.png';
+        const songUrl       = user.song  || '';
         const songHidden    = songUrl ? '' : 'style="display:none"';
-        const musicAutoPlay = (pd.musicEnabled && songUrl) ? 'true' : 'false';
-        const bioHtml       = pd.bio
-            ? `<p class="profile-bio">${pd.bio.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`
+        const musicAutoPlay = (user.musicEnabled && songUrl) ? 'true' : 'false';
+        const bioHtml       = user.bio
+            ? `<p class="profile-bio">${user.bio.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`
             : '';
 
         const isOwner = req.isAuthenticated() && req.user.googleId === user.googleId;
@@ -773,24 +629,24 @@ app.get('/:username', async (req, res) => {
 
         // Background media element
         let bgMediaElement = '';
-        if (pd.bgMedia && pd.bgMediaType === 'video') {
-            bgMediaElement = `<video autoplay muted loop playsinline class="bg-video"><source src="${pd.bgMedia}" type="video/mp4"></video>`;
-        } else if (pd.bgMedia && pd.bgMediaType === 'image') {
-            bgMediaElement = `<div class="bg-image" style="background-image:url('${pd.bgMedia}')"></div>`;
+        if (user.bgMedia && user.bgMediaType === 'video') {
+            bgMediaElement = `<video autoplay muted loop playsinline class="bg-video"><source src="${user.bgMedia}" type="video/mp4"></video>`;
+        } else if (user.bgMedia && user.bgMediaType === 'image') {
+            bgMediaElement = `<div class="bg-image" style="background-image:url('${user.bgMedia}')"></div>`;
         }
 
         // Custom cursor style
-        const cursorStyle = pd.customCursor
-            ? `<style>*{cursor:url('${pd.customCursor}') 16 16,auto!important;}</style>`
+        const cursorStyle = user.customCursor
+            ? `<style>*{cursor:url('${user.customCursor}') 16 16,auto!important;}</style>`
             : '';
 
         // Body class for background media + theme
-        const themeClass = `theme-${pd.profileTheme || 'default'}`;
-        const bodyClass = [pd.bgMedia ? 'has-bg-media' : '', themeClass].filter(Boolean).join(' ');
+        const themeClass = `theme-${user.profileTheme || 'default'}`;
+        const bodyClass = [user.bgMedia ? 'has-bg-media' : '', themeClass].filter(Boolean).join(' ');
 
         // Profile icon links — use /click redirect for analytics
-        const profileLinksHtml = (pd.links && pd.links.length > 0)
-            ? pd.links.map((link, idx) => {
+        const profileLinksHtml = (user.links && user.links.length > 0)
+            ? user.links.map((link, idx) => {
                 const iconContent = link.platform === 'custom'
                     ? `<span style="font-size:1.4rem;line-height:1">🔗</span>`
                     : `<img src="https://cdn.simpleicons.org/${link.platform}/${(link.tc||'ffffff').replace('#','')}" alt="${link.label}" width="28" height="28" onerror="this.style.display='none'">`;
@@ -801,7 +657,7 @@ app.get('/:username', async (req, res) => {
 
         template = template
             .replace(/\{\{USERNAME\}\}/g,           user.username)
-            .replace(/\{\{DISPLAYNAME\}\}/g,        pd.displayname || user.displayname)
+            .replace(/\{\{DISPLAYNAME\}\}/g,        user.displayname)
             .replace(/\{\{PHOTO_URL\}\}/g,          photoUrl)
             .replace(/\{\{SONG_URL\}\}/g,           songUrl)
             .replace(/\{\{SONG_HIDDEN\}\}/g,        songHidden)
