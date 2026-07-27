@@ -192,8 +192,10 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
                 </div>
                 <div class="hero-info">
                     <h2 class="hero-name">${existing.displayname}</h2>
-                    <p class="hero-handle">@${existing.username}</p>
-                    ${existing.isPremium ? `<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.75rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.3);border-radius:50px;font-size:0.72rem;font-weight:700;color:#fbbf24;margin-top:0.3rem;">⭐ PREMIUM</span>` : ''}
+                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                        <p class="hero-handle" style="margin:0;">@${existing.username}</p>
+                        ${existing.isPremium ? `<span style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.15rem 0.6rem;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.3);border-radius:50px;font-size:0.68rem;font-weight:700;color:#fbbf24;">⭐ PREMIUM</span>` : ''}
+                    </div>
                     <div class="hero-btns">
                         <button onclick="showTab('edit', null)" class="btn-white">✏️ Edit Profile</button>
                         <a href="/${existing.username}" target="_blank" class="btn-ghost">🔗 View Profile</a>
