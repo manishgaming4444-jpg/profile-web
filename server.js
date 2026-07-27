@@ -151,6 +151,7 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             editDiscord = '', editYoutube = '', editMusicEnabled = '';
         let currentPhotoPreview = '', currentSongPreview = '',
             currentBgPreview = '', currentCursorPreview = '';
+        let isMusicOn = false; // default NO
 
         if (existing) {
             const profileUrl = `xonpro.store/${existing.username}`;
@@ -164,6 +165,8 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             editDiscord      = existing.discord      || '';
             editYoutube      = existing.youtube      || '';
             editMusicEnabled = existing.musicEnabled ? 'checked' : '';
+            // YES/NO button styling
+            isMusicOn = !!existing.musicEnabled;
 
             currentPhotoPreview = existing.photo
                 ? `<div class="current-media"><img src="${existing.photo}" alt="Current photo"> <span>Current photo</span></div>`
@@ -235,6 +238,14 @@ app.get('/dashboard', isLoggedIn, async (req, res) => {
             .replace(/\{\{EDIT_DISCORD\}\}/g,           editDiscord)
             .replace(/\{\{EDIT_YOUTUBE\}\}/g,           editYoutube)
             .replace(/\{\{EDIT_MUSIC_ENABLED\}\}/g,     editMusicEnabled)
+            .replace(/\{\{MUSIC_YES_CHECKED\}\}/g,       isMusicOn ? 'checked' : '')
+            .replace(/\{\{MUSIC_NO_CHECKED\}\}/g,        isMusicOn ? '' : 'checked')
+            .replace(/\{\{MUSIC_YES_BG\}\}/g,            isMusicOn ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.04)')
+            .replace(/\{\{MUSIC_YES_BORDER\}\}/g,        isMusicOn ? '#22c55e' : 'rgba(255,255,255,0.12)')
+            .replace(/\{\{MUSIC_YES_COLOR\}\}/g,         isMusicOn ? '#4ade80' : 'rgba(255,255,255,0.35)')
+            .replace(/\{\{MUSIC_NO_BG\}\}/g,             !isMusicOn ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)')
+            .replace(/\{\{MUSIC_NO_BORDER\}\}/g,         !isMusicOn ? '#ef4444' : 'rgba(255,255,255,0.12)')
+            .replace(/\{\{MUSIC_NO_COLOR\}\}/g,          !isMusicOn ? '#f87171' : 'rgba(255,255,255,0.35)')
             .replace(/\{\{EDIT_NAME_FONT\}\}/g,         (existing && existing.nameFont)      || 'Outfit')
             .replace(/\{\{EDIT_NAME_ANIMATION\}\}/g,    (existing && existing.nameAnimation) || 'none')
             .replace(/\{\{EDIT_NAME_COLOR\}\}/g,        (existing && existing.nameColor)     || '#ffffff')
@@ -332,7 +343,8 @@ app.post('/:username/edit', isLoggedIn, upload.fields([
         const { displayname, bio, musicEnabled, nameFont, nameAnimation } = req.body;
         user.displayname  = displayname  || user.displayname;
         user.bio          = bio !== undefined ? bio.slice(0, 150) : (user.bio || '');
-        if ('musicEnabled' in req.body) user.musicEnabled = musicEnabled === 'on';
+        // Radio: value="on" = yes, value="off" = no
+        if ('musicEnabled' in req.body) user.musicEnabled = (musicEnabled === 'on');
         if (nameFont)      user.nameFont      = nameFont;
         if (nameAnimation) user.nameAnimation = nameAnimation;
         // Validate hex color before saving
