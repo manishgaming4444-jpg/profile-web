@@ -543,26 +543,19 @@
                                     onchange="onAssetChange(this,'song-name','audioArea',null)">
                                 <div class="file-name-show" id="song-name"></div>
                                 {{CURRENT_SONG_PREVIEW}}
-                                <!-- Audio Enable Toggle -->
-                                <div class="toggle-row" style="flex-direction:column;align-items:flex-start;gap:0.6rem;margin-top:0.8rem;">
-                                    <div class="toggle-label" style="margin-bottom:0.2rem;">
-                                        🎵 Profile pe song chalega?
-                                        <span>Yes = song auto-play hoga, No = music nahi chalega</span>
-                                    </div>
-                                    <div style="display:flex;gap:0.6rem;">
-                                        <label id="music-yes-label" style="cursor:pointer;">
+                                <!-- Song ON/OFF toggle -->
+                                <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.9rem;">
+                                    <span style="font-size:0.82rem;color:rgba(255,255,255,0.35);font-weight:600;">🎵 Song</span>
+                                    <div style="display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:3px;gap:3px;">
+                                        <label style="cursor:pointer;margin:0;">
                                             <input type="radio" name="musicEnabled" id="musicYes" value="on" {{MUSIC_YES_CHECKED}} style="display:none;">
-                                            <span id="music-yes-btn" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.45rem 1.2rem;border-radius:50px;border:2px solid;font-size:0.85rem;font-weight:700;transition:all 0.2s;cursor:pointer;
-                                                background:{{MUSIC_YES_BG}};border-color:{{MUSIC_YES_BORDER}};color:{{MUSIC_YES_COLOR}};">
-                                                ✅ Yes
-                                            </span>
+                                            <span id="music-yes-btn" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;
+                                                background:{{MUSIC_YES_BG}};color:{{MUSIC_YES_COLOR}};">ON</span>
                                         </label>
-                                        <label id="music-no-label" style="cursor:pointer;">
+                                        <label style="cursor:pointer;margin:0;">
                                             <input type="radio" name="musicEnabled" id="musicNo" value="off" {{MUSIC_NO_CHECKED}} style="display:none;">
-                                            <span id="music-no-btn" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.45rem 1.2rem;border-radius:50px;border:2px solid;font-size:0.85rem;font-weight:700;transition:all 0.2s;cursor:pointer;
-                                                background:{{MUSIC_NO_BG}};border-color:{{MUSIC_NO_BORDER}};color:{{MUSIC_NO_COLOR}};">
-                                                ❌ No
-                                            </span>
+                                            <span id="music-no-btn" style="display:inline-block;padding:0.3rem 0.9rem;border-radius:50px;font-size:0.8rem;font-weight:700;transition:all 0.2s;cursor:pointer;
+                                                background:{{MUSIC_NO_BG}};color:{{MUSIC_NO_COLOR}};">OFF</span>
                                         </label>
                                     </div>
                                 </div>
@@ -770,19 +763,17 @@ function updateMusicBtns() {
     const noBtn  = document.getElementById('music-no-btn');
     if (!yesBtn || !noBtn) return;
     if (isYes) {
-        yesBtn.style.background    = 'rgba(34,197,94,0.15)';
-        yesBtn.style.borderColor   = '#22c55e';
-        yesBtn.style.color         = '#4ade80';
-        noBtn.style.background     = 'rgba(255,255,255,0.04)';
-        noBtn.style.borderColor    = 'rgba(255,255,255,0.12)';
-        noBtn.style.color          = 'rgba(255,255,255,0.35)';
+        // ON = green fill
+        yesBtn.style.background = 'rgba(34,197,94,0.9)';
+        yesBtn.style.color      = '#fff';
+        noBtn.style.background  = 'transparent';
+        noBtn.style.color       = 'rgba(255,255,255,0.25)';
     } else {
-        noBtn.style.background     = 'rgba(239,68,68,0.15)';
-        noBtn.style.borderColor    = '#ef4444';
-        noBtn.style.color          = '#f87171';
-        yesBtn.style.background    = 'rgba(255,255,255,0.04)';
-        yesBtn.style.borderColor   = 'rgba(255,255,255,0.12)';
-        yesBtn.style.color         = 'rgba(255,255,255,0.35)';
+        // OFF = white subtle
+        noBtn.style.background  = 'rgba(255,255,255,0.12)';
+        noBtn.style.color       = 'rgba(255,255,255,0.85)';
+        yesBtn.style.background = 'transparent';
+        yesBtn.style.color      = 'rgba(255,255,255,0.25)';
     }
 }
 document.addEventListener('DOMContentLoaded', () => {
