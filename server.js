@@ -310,6 +310,8 @@ app.post('/create', isLoggedIn, upload.fields([
         if (!username || !/^[a-z0-9_]{2,20}$/.test(username)) {
             return res.status(400).send('Invalid username.');
         }
+        // Bug #6: limit bio length on create (same as edit)
+        const safeBio = bio ? bio.slice(0, 150) : '';
 
         const taken = await User.findOne({ username });
         if (taken) return res.redirect(`/create?error=taken&username=${encodeURIComponent(username)}`);
@@ -324,7 +326,7 @@ app.post('/create', isLoggedIn, upload.fields([
         await User.create({
             username,
             displayname:  displayname || username,
-            bio:          bio         || '',
+            bio:          safeBio,
             googleId:     req.user.googleId,
             googleEmail:  req.user.email,
             instagram:    instagram   || '',
@@ -418,17 +420,21 @@ app.post('/:username/links', isLoggedIn, async (req, res) => {
 app.get('/explore', async (req, res) => {
     try {
         const q = (req.query.q || '').toLowerCase().trim();
-        const filter = q
-            ? { $or: [{ username: new RegExp(q,'i') }, { displayname: new RegExp(q,'i') }] }
+        // Bug #4: escape regex special chars to prevent ReDoS
+        const qSafe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const filter = qSafe
+            ? { $or: [{ username: new RegExp(qSafe,'i') }, { displayname: new RegExp(qSafe,'i') }] }
             : {};
         const profiles = await User.find(filter, 'username displayname photo views createdAt profileTheme')
             .sort({ views: -1 }).limit(60).lean();
         const exploreTemplate = fs.readFileSync(path.join(__dirname, 'views', 'explore.html'), 'utf-8');
+        // Bug #3: escape HTML to prevent XSS in explore cards
+        const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         const cardsHtml = profiles.map(p => {
             const photo = p.photo
-                ? `<img src="${p.photo}" alt="${p.displayname}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);">`
+                ? `<img src="${esc(p.photo)}" alt="${esc(p.displayname)}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);">`
                 : `<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8a2be2,#ff007f);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">👤</div>`;
-            return `<a href="/${p.username}" class="explore-card">${photo}<div class="ec-name">${p.displayname}</div><div class="ec-user">@${p.username}</div><div class="ec-views">👁️ ${(p.views||0).toLocaleString('en-IN')}</div></a>`;
+            return `<a href="/${esc(p.username)}" class="explore-card">${photo}<div class="ec-name">${esc(p.displayname)}</div><div class="ec-user">@${esc(p.username)}</div><div class="ec-views">👁️ ${(p.views||0).toLocaleString('en-IN')}</div></a>`;
         }).join('');
         const html = exploreTemplate
             .replace('{{SEARCH_QUERY}}', q)
@@ -540,15 +546,20 @@ app.get('/xon-admin-panel', isAdmin, async (req, res) => {
     } catch(err) { res.status(500).send('Server error'); }
 });
 
+// Bug #5: added try-catch to ban route
 app.post('/xon-admin-ban', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
-    await User.updateOne({ username: req.body.username }, { banned: req.body.action === 'ban' });
-    res.redirect('/xon-admin-panel');
+    try {
+        await User.updateOne({ username: req.body.username }, { banned: req.body.action === 'ban' });
+        res.redirect('/xon-admin-panel');
+    } catch(err) { console.error(err); res.status(500).send('Ban error'); }
 });
 
-// ⭐ Premium toggle
+// ⭐ Premium toggle — Bug #5: added try-catch
 app.post('/xon-admin-premium', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
-    await User.updateOne({ username: req.body.username }, { isPremium: req.body.action === 'add' });
-    res.redirect('/xon-admin-panel');
+    try {
+        await User.updateOne({ username: req.body.username }, { isPremium: req.body.action === 'add' });
+        res.redirect('/xon-admin-panel');
+    } catch(err) { console.error(err); res.status(500).send('Premium toggle error'); }
 });
 
 app.post('/xon-admin-delete', isAdmin, express.urlencoded({ extended: false }), async (req, res) => {
@@ -595,11 +606,16 @@ app.get('/:username', async (req, res) => {
                 </body></html>`);
         }
 
-        // Increment views atomically and get updated count
-        const updated = await User.findByIdAndUpdate(
-            user._id, { $inc: { views: 1 } }, { new: true }
-        );
-        const viewsCount = (updated.views || 1).toLocaleString('en-IN');
+        // Bug #2: don't count owner's own visits toward views (reuse isOwnerVisit from line 598)
+        let viewsCount;
+        if (!isOwnerVisit) {
+            const updated = await User.findByIdAndUpdate(
+                user._id, { $inc: { views: 1 } }, { new: true }
+            );
+            viewsCount = (updated.views || 1).toLocaleString('en-IN');
+        } else {
+            viewsCount = (user.views || 0).toLocaleString('en-IN');
+        }
 
         let template = fs.readFileSync(path.join(__dirname, 'template', 'profile.html'), 'utf-8');
 
@@ -712,12 +728,8 @@ app.get('/:username', async (req, res) => {
   audio.addEventListener('play',  () => { navigator.mediaSession.playbackState = 'playing'; });
   audio.addEventListener('pause', () => { navigator.mediaSession.playbackState = 'paused'; });
 
-  // Keep alive: prevent browser from suspending audio on mobile
-  audio.addEventListener('ended', () => {
-    // Loop song (premium keeps playing)
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  });
+  // Bug #7: audio element already has loop attr — ended never fires
+  // MediaSession handles loop natively; no manual ended handler needed
 
   // Visibility change — re-assert playback when page comes back to foreground
   document.addEventListener('visibilitychange', () => {
@@ -784,12 +796,8 @@ app.delete('/account/delete', async (req, res) => {
 });
 
 
+// Bug #1: duplicate /xon-admin-logout removed (already defined at line 566)
 
-// Admin Logout
-app.get('/xon-admin-logout', (req, res) => {
-    if (req.session) req.session[ADMIN_SESS_KEY] = false;
-    res.redirect('/xon-admin-secret');
-});
 
 // ─── MULTER ERROR HANDLER ────────────────────────────────────
 app.use((err, req, res, next) => {
